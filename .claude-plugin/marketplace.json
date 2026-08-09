@@ -1,0 +1,13 @@
+{
+  "name": "neoprumo-dev",
+  "owner": {
+    "name": "Tharso Vieira"
+  },
+  "plugins": [
+    {
+      "name": "neoprumo",
+      "source": "./",
+      "description": "Esqueleto instalável de desenvolvimento do NeoPrumo."
+    }
+  ]
+}

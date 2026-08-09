@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  qualidade:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ["3.10", "3.13"]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Instalar ferramentas de teste
+        run: python -m pip install pytest pytest-cov
+
+      - name: Testar com cobertura mínima de 85%
+        run: python -m pytest nucleo/tests -v
+
+      - name: Verificar orçamento de palavras das skills
+        run: python3 ferramentas/catraca_skills.py verificar
+
+      - name: Impedir módulos maiores que 300 linhas
+        shell: bash
+        run: |
+          ultrapassou=0
+          while IFS= read -r arquivo; do
+            linhas=$(wc -l < "$arquivo")
+            if [ "$linhas" -gt 300 ]; then
+              echo "$arquivo tem $linhas linhas (máximo: 300)."
+              ultrapassou=1
+            fi
+          done < <(find nucleo/neoprumo ferramentas -type f -name '*.py' -print)
+          exit "$ultrapassou"

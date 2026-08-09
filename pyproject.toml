@@ -1,0 +1,22 @@
+[project]
+name = "neoprumo"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.pytest.ini_options]
+pythonpath = ["nucleo", "."]
+testpaths = ["nucleo/tests"]
+addopts = [
+  "--cov=neoprumo",
+  "--cov=ferramentas",
+  "--cov-report=term-missing",
+  "--cov-fail-under=85",
+]
+
+[tool.coverage.run]
+patch = ["subprocess"]
+source = ["neoprumo", "ferramentas"]
+
+[tool.coverage.report]
+show_missing = true

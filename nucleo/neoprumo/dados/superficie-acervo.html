@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+  <title>Navegador do acervo — NeoPrumo</title>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; }
+    body { margin: 0; background: #eee9df; color: #28241e; }
+    main { width: min(960px, calc(100% - 32px)); margin: 32px auto 80px; }
+    h1 { margin-bottom: 6px; font-size: clamp(2rem, 5vw, 3.5rem); }
+    header p { color: #675f54; }
+    .controles { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 12px; margin: 24px 0; }
+    input, select, textarea { box-sizing: border-box; width: 100%; padding: 10px 12px; border: 1px solid #b7ad9d; border-radius: 8px; font: inherit; }
+    #cartoes { display: grid; gap: 16px; }
+    article { padding: 20px; border: 1px solid #d6cebf; border-radius: 14px; background: #fffdfa; box-shadow: 0 8px 22px #3d342414; }
+    article[hidden] { display: none; }
+    .topo { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; }
+    h2 { margin: 0; font-size: 1rem; overflow-wrap: anywhere; }
+    .idade { color: #746b5e; white-space: nowrap; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; padding: 14px; border-radius: 9px; background: #f5f1e9; line-height: 1.5; }
+    fieldset { display: flex; flex-wrap: wrap; gap: 12px; border: 0; padding: 0; margin: 16px 0; }
+    label { cursor: pointer; }
+    .campo { display: grid; gap: 6px; }
+    textarea { min-height: 68px; resize: vertical; }
+    .aviso { color: #8a3e20; font-weight: 650; }
+    footer { position: sticky; bottom: 0; margin-top: 24px; padding: 16px 0; background: linear-gradient(transparent, #eee9df 25%); }
+    button { width: 100%; padding: 14px; border: 0; border-radius: 10px; background: #315846; color: white; font: inherit; font-weight: 700; cursor: pointer; }
+    #retorno { min-height: 1.5em; text-align: center; }
+    @media (max-width: 700px) { .controles { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Garimpo do acervo</h1>
+      <p>Busque, filtre e decida o que ainda merece espaço.</p>
+    </header>
+    <section class="controles" aria-label="Busca, filtro e ordenação">
+      <input id="busca" type="search" placeholder="Buscar no nome e conteúdo">
+      <select id="faixa" aria-label="Filtrar por idade">
+        <option value="todas">Todas as idades</option>
+        <option value="7">Até 7 dias</option>
+        <option value="30">Até 30 dias</option>
+        <option value="mais30">Mais de 30 dias</option>
+      </select>
+      <select id="ordem" aria-label="Ordenar por idade">
+        <option value="antigos">Mais antigos primeiro</option>
+        <option value="novos">Mais novos primeiro</option>
+      </select>
+    </section>
+    <section id="cartoes" aria-label="Itens do Acervo"></section>
+    <footer>
+      <button id="copiar" type="button">Copiar decisões</button>
+      <p id="retorno" role="status"></p>
+    </footer>
+  </main>
+  <script type="application/json" id="dados">__DADOS_DA_SUPERFICIE__</script>
+  <script>
+    const dados = JSON.parse(document.getElementById("dados").textContent);
+    const cartoes = document.getElementById("cartoes");
+    const busca = document.getElementById("busca");
+    const faixa = document.getElementById("faixa");
+    const ordem = document.getElementById("ordem");
+    const decisoes = [
+      ["pauta", "Incluir na pauta"], ["atacar", "Atacar agora"],
+      ["lixo", "Excluir"], ["deixar", "Deixar no acervo"]
+    ];
+    const normalizar = texto => texto.normalize("NFD").replace(/\p{Mn}/gu, "").toLowerCase();
+
+    function elemento(tag, texto, classe) {
+      const no = document.createElement(tag);
+      if (texto !== undefined) no.textContent = texto;
+      if (classe) no.className = classe;
+      return no;
+    }
+
+    const modelos = dados.itens.map((item, indice) => {
+      const cartao = elemento("article");
+      cartao.dataset.item = item.nome;
+      cartao.dataset.idade = item.idade === null ? "" : String(item.idade);
+      cartao.dataset.busca = normalizar(`${item.nome}\n${item.conteudo}`);
+      const topo = elemento("div", undefined, "topo");
+      topo.append(elemento("h2", item.nome));
+      const idade = item.idade === null ? "idade indisponível" : `${item.idade} ${item.idade === 1 ? "dia" : "dias"}`;
+      topo.append(elemento("span", idade, "idade"));
+      cartao.append(topo);
+      const conteudo = elemento("pre", item.conteudo);
+      if (item.aviso) conteudo.classList.add("aviso");
+      cartao.append(conteudo);
+      if (item.digital === null) {
+        cartao.append(elemento("p", item.aviso, "aviso"));
+        return {item, cartao, indice};
+      }
+      cartao.dataset.digital = item.digital;
+      const grupo = elemento("fieldset");
+      for (const [valor, rotulo] of decisoes) {
+        const label = elemento("label");
+        const radio = document.createElement("input");
+        radio.type = "radio"; radio.name = `decisao-${indice}`; radio.value = valor;
+        radio.checked = valor === "deixar";
+        label.append(radio, ` ${rotulo}`); grupo.append(label);
+      }
+      cartao.append(grupo);
+      const campo = elemento("label", undefined, "campo");
+      campo.append(elemento("span", "Observação opcional"), document.createElement("textarea"));
+      cartao.append(campo);
+      return {item, cartao, indice};
+    });
+
+    let ordemVisual = modelos.slice();
+    function comparar(a, b) {
+      const ai = a.item.idade, bi = b.item.idade;
+      const nomes = a.item.nome < b.item.nome ? -1 : a.item.nome > b.item.nome ? 1 : 0;
+      if (ai === null || bi === null) return ai === bi ? nomes : (ai === null ? 1 : -1);
+      const diferenca = ordem.value === "antigos" ? bi - ai : ai - bi;
+      return diferenca || nomes;
+    }
+    function cabeNaFaixa(idade) {
+      if (idade === null || faixa.value === "todas") return true;
+      if (faixa.value === "7") return idade <= 7;
+      if (faixa.value === "30") return idade <= 30;
+      return idade > 30;
+    }
+    function exibir() {
+      ordemVisual = modelos.slice().sort(comparar);
+      const consulta = normalizar(busca.value);
+      for (const modelo of ordemVisual) {
+        modelo.cartao.hidden = !modelo.cartao.dataset.busca.includes(consulta) || !cabeNaFaixa(modelo.item.idade);
+        cartoes.append(modelo.cartao);
+      }
+    }
+    busca.addEventListener("input", exibir); faixa.addEventListener("change", exibir); ordem.addEventListener("change", exibir);
+    exibir();
+
+    function respostas() {
+      const saida = {superficie: "acervo", pagina: dados.pagina, respostas: []};
+      for (const {cartao} of ordemVisual) {
+        if (cartao.dataset.digital === undefined) continue;
+        const decisao = cartao.querySelector("fieldset :checked").value;
+        const observacao = cartao.querySelector("textarea").value;
+        if (decisao === "deixar" && !observacao.trim()) continue;
+        const item = {item: cartao.dataset.item, decisao, digital: cartao.dataset.digital};
+        if (observacao.trim()) item.observacao = observacao;
+        saida.respostas.push(item);
+      }
+      return saida;
+    }
+    function copiarComoTexto(texto) {
+      const apoio = document.createElement("textarea"); apoio.value = texto; apoio.setAttribute("readonly", "");
+      apoio.style.position = "fixed"; apoio.style.opacity = "0"; document.body.append(apoio); apoio.select();
+      const copiou = document.execCommand("copy"); apoio.remove(); if (!copiou) throw new Error("cópia indisponível");
+    }
+    document.getElementById("copiar").addEventListener("click", async () => {
+      const retorno = document.getElementById("retorno"); const resposta = respostas(); const texto = JSON.stringify(resposta, null, 2);
+      try {
+        if (navigator.clipboard) await navigator.clipboard.writeText(texto); else copiarComoTexto(texto);
+        retorno.textContent = `${resposta.respostas.length} ${resposta.respostas.length === 1 ? "decisão copiada" : "decisões copiadas"}. Cole na conversa.`;
+      } catch (_) {
+        try {
+          copiarComoTexto(texto);
+          retorno.textContent = `${resposta.respostas.length} ${resposta.respostas.length === 1 ? "decisão copiada" : "decisões copiadas"}. Cole na conversa.`;
+        } catch (_) {
+          retorno.textContent = "Não deu para copiar. Abra em um navegador com acesso à área de transferência.";
+        }
+      }
+    });
+  </script>
+</body>
+</html>

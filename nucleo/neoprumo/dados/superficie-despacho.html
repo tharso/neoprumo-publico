@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+  <title>Superfície de despacho — NeoPrumo</title>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; }
+    body { margin: 0; background: #f3efe7; color: #27231d; }
+    main { width: min(860px, calc(100% - 32px)); margin: 36px auto 80px; }
+    header { margin-bottom: 28px; }
+    h1 { margin: 0 0 8px; font-size: clamp(2rem, 5vw, 3.5rem); }
+    header p { margin: 0; color: #655e53; }
+    #cartoes { display: grid; gap: 18px; }
+    article { background: #fffdfa; border: 1px solid #d8d0c2; border-radius: 16px; padding: 22px; box-shadow: 0 8px 24px #3d342414; }
+    .topo { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; }
+    h2 { margin: 0; font-size: 1rem; overflow-wrap: anywhere; }
+    .idade { color: #746b5e; white-space: nowrap; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #f6f2ea; border-radius: 10px; padding: 16px; line-height: 1.5; }
+    fieldset { border: 0; padding: 0; margin: 16px 0; display: flex; flex-wrap: wrap; gap: 12px; }
+    label { cursor: pointer; }
+    .campo { display: grid; gap: 6px; margin-top: 12px; }
+    input[type="text"], textarea { box-sizing: border-box; width: 100%; padding: 10px 12px; border: 1px solid #b9ae9d; border-radius: 8px; font: inherit; }
+    textarea { min-height: 72px; resize: vertical; }
+    .projeto[hidden] { display: none; }
+    .aviso { color: #8a3e20; font-weight: 650; }
+    footer { position: sticky; bottom: 0; margin-top: 24px; padding: 16px 0; background: linear-gradient(transparent, #f3efe7 25%); }
+    button { width: 100%; border: 0; border-radius: 10px; padding: 14px 18px; background: #1e5631; color: white; font: inherit; font-weight: 700; cursor: pointer; }
+    #retorno { text-align: center; min-height: 1.5em; margin: 8px 0 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Despacho da Inbox</h1>
+      <p>Escolha uma decisão por item. “Decidir depois” mantém o item na Inbox.</p>
+    </header>
+    <section id="cartoes" aria-label="Itens da Inbox"></section>
+    <footer>
+      <button id="copiar" type="button">Copiar respostas</button>
+      <p id="retorno" role="status"></p>
+    </footer>
+  </main>
+  <script type="application/json" id="dados">__DADOS_DA_SUPERFICIE__</script>
+  <script>
+    const dados = JSON.parse(document.getElementById("dados").textContent);
+    const cartoes = document.getElementById("cartoes");
+    const decisoes = [
+      ["pauta", "Pauta"], ["acervo", "Acervo"], ["projeto", "Projeto"],
+      ["lixo", "Lixo"], ["depois", "Decidir depois"]
+    ];
+
+    function elemento(tag, texto, classe) {
+      const no = document.createElement(tag);
+      if (texto !== undefined) no.textContent = texto;
+      if (classe) no.className = classe;
+      return no;
+    }
+
+    for (const [indice, item] of dados.itens.entries()) {
+      const cartao = elemento("article");
+      cartao.dataset.item = item.nome;
+      const topo = elemento("div", undefined, "topo");
+      topo.append(elemento("h2", item.nome));
+      const idade = item.idade === null
+        ? "idade indisponível"
+        : `${item.idade} ${item.idade === 1 ? "dia" : "dias"}`;
+      topo.append(elemento("span", idade, "idade"));
+      cartao.append(topo);
+      const conteudo = elemento("pre", item.conteudo);
+      if (item.aviso) conteudo.classList.add("aviso");
+      cartao.append(conteudo);
+      if (item.digital === null) {
+        cartao.append(elemento("p", item.aviso, "aviso"));
+        cartoes.append(cartao);
+        continue;
+      }
+      cartao.dataset.digital = item.digital;
+      const grupo = elemento("fieldset");
+      for (const [valor, rotulo] of decisoes) {
+        const label = elemento("label");
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = `decisao-${indice}`;
+        radio.value = valor;
+        radio.checked = valor === "depois";
+        label.append(radio, ` ${rotulo}`);
+        grupo.append(label);
+      }
+      cartao.append(grupo);
+      const campoProjeto = elemento("label", undefined, "campo projeto");
+      campoProjeto.hidden = true;
+      campoProjeto.append(elemento("span", "Nome do projeto"));
+      const projeto = document.createElement("input");
+      projeto.type = "text";
+      campoProjeto.append(projeto);
+      cartao.append(campoProjeto);
+      grupo.addEventListener("change", () => {
+        campoProjeto.hidden = grupo.querySelector(":checked").value !== "projeto";
+      });
+      const campoObservacao = elemento("label", undefined, "campo");
+      campoObservacao.append(elemento("span", "Observação opcional"));
+      campoObservacao.append(document.createElement("textarea"));
+      cartao.append(campoObservacao);
+      cartoes.append(cartao);
+    }
+
+    function respostas() {
+      const resposta = {superficie: "despacho", pagina: dados.pagina, respostas: []};
+      for (const cartao of cartoes.children) {
+        if (cartao.dataset.digital === undefined) continue;
+        const decisao = cartao.querySelector("fieldset :checked").value;
+        const projeto = cartao.querySelector("input[type=text]").value;
+        const observacao = cartao.querySelector("textarea").value;
+        if (decisao === "depois" && !observacao.trim()) continue;
+        const item = {
+          item: cartao.dataset.item,
+          decisao,
+          digital: cartao.dataset.digital
+        };
+        if (decisao === "projeto") item.projeto = projeto;
+        if (observacao.trim()) item.observacao = observacao;
+        resposta.respostas.push(item);
+      }
+      return resposta;
+    }
+
+    function copiarComoTexto(texto) {
+      const apoio = document.createElement("textarea");
+      apoio.value = texto;
+      apoio.setAttribute("readonly", "");
+      apoio.style.position = "fixed";
+      apoio.style.opacity = "0";
+      document.body.append(apoio);
+      apoio.select();
+      const copiou = document.execCommand("copy");
+      apoio.remove();
+      if (!copiou) throw new Error("cópia indisponível");
+    }
+
+    document.getElementById("copiar").addEventListener("click", async () => {
+      const retorno = document.getElementById("retorno");
+      const texto = JSON.stringify(respostas(), null, 2);
+      try {
+        if (navigator.clipboard) await navigator.clipboard.writeText(texto);
+        else copiarComoTexto(texto);
+        retorno.textContent = "Respostas copiadas. Cole-as na conversa.";
+      } catch (_) {
+        try {
+          copiarComoTexto(texto);
+          retorno.textContent = "Respostas copiadas. Cole-as na conversa.";
+        } catch (_) {
+          retorno.textContent = "Não deu para copiar. Abra esta página em um navegador com acesso à área de transferência.";
+        }
+      }
+    });
+  </script>
+</body>
+</html>
