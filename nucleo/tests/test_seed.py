@@ -34,6 +34,7 @@ def test_resumo_de_workspace_saudavel_e_vazio(tmp_path, executar_cli):
         "pauta": {"abertos": 0, "concluidos": 0},
         "acervo": {"total": 0, "idade_mais_antigo_dias": None},
         "estrutura": {"status": "saudavel", "problemas": []},
+        "configuracao": {"estado": "nunca configurada", "avisos": []},
     }
 
 
@@ -132,6 +133,7 @@ def test_seed_cli_json_entrega_envelope_completo_do_workspace_ativo(
         "pauta",
         "acervo",
         "estrutura",
+        "configuracao",
     }
     assert dados["status"] == "resumido"
     assert dados["workspace"] == str(workspace.resolve())

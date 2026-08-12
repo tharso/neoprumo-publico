@@ -11,14 +11,23 @@ RAIZ_PROJETO = Path(__file__).parents[2]
 @pytest.fixture(autouse=True)
 def isolar_configuracao_xdg(tmp_path, monkeypatch):
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "configuracao-xdg"))
+    monkeypatch.setenv("XDG_STATE_HOME", str(tmp_path / "estado-xdg"))
 
 
 @pytest.fixture
 def executar_cli(capsys):
     from neoprumo.cli import executar as executar_cli_publica
 
-    def executar_diretamente(*argumentos):
-        codigo = executar_cli_publica(list(map(str, argumentos)))
+    def executar_diretamente(*argumentos, input=None):
+        import io
+        import sys
+        anterior = sys.stdin
+        if input is not None:
+            sys.stdin = io.StringIO(input)
+        try:
+            codigo = executar_cli_publica(list(map(str, argumentos)))
+        finally:
+            sys.stdin = anterior
         saida = capsys.readouterr()
         return SimpleNamespace(
             returncode=codigo,

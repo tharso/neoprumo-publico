@@ -38,8 +38,7 @@ def test_setup_cria_workspace_canonico_em_diretorio_inexistente(
     identidade = json.loads(
         (workspace / ".neoprumo" / "workspace.json").read_text(encoding="utf-8")
     )
-    assert identidade["layout"] == 1
-    assert identidade["criado_em"].endswith(("Z", "+00:00"))
+    assert identidade == {"layout": 1}
 
 
 def test_setup_recusa_diretorio_nao_vazio_sem_tocar_no_conteudo(

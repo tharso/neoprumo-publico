@@ -11,6 +11,7 @@ def campos_nulos():
         "pauta": None,
         "acervo": None,
         "estrutura": None,
+        "configuracao": None,
     }
 
 

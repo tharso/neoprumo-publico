@@ -4,6 +4,11 @@ import sys
 from .ativo import definir, e_workspace, informar_indisponivel, mostrar, resolver
 from .acervo import decidir_acervo
 from .captura import capturar
+from .configuracao_comandos import (
+    adotar, avaliar_configuracao, defaults, gravar, mostrar_configuracao,
+)
+from .configuracao_conflito import resolver_conflito
+from .configuracao_historico import rejeitar, restaurar
 from .despacho import despachar
 from .ressurgimento import executar_ressurgimento
 from .readocao import readotar
@@ -84,7 +89,47 @@ def criar_parser():
         dest="usar_json",
         default=argparse.SUPPRESS,
     )
+    configuracao = comandos.add_parser(
+        "configuracao", help="mostra ou altera a configuração do dono"
+    )
+    configuracao.add_argument("--workspace", dest="caminho")
+    configuracao.add_argument("--json", action="store_true", dest="usar_json")
+    acoes_configuracao = configuracao.add_subparsers(dest="acao_configuracao")
+    avaliar_cfg = acoes_configuracao.add_parser("avaliar")
+    avaliar_cfg.add_argument("entrada", choices=["-"])
+    avaliar_cfg.add_argument("--workspace", dest="caminho")
+    avaliar_cfg.add_argument("--json", action="store_true", dest="usar_json")
+    gravar_cfg = acoes_configuracao.add_parser("gravar")
+    gravar_cfg.add_argument("entrada", choices=["-"])
+    _argumentos_comuns(gravar_cfg)
+    for nome in ("adotar", "defaults"):
+        _argumentos_comuns(acoes_configuracao.add_parser(nome))
+    rejeitar_cfg = acoes_configuracao.add_parser("rejeitar")
+    _argumentos_comuns(rejeitar_cfg)
+    grupo_destino = rejeitar_cfg.add_mutually_exclusive_group()
+    grupo_destino.add_argument("--defaults", action="store_true", dest="usar_defaults")
+    grupo_destino.add_argument("--gravacao")
+    rejeitar_cfg.add_argument("--artefato")
+    restaurar_cfg = acoes_configuracao.add_parser("restaurar")
+    _argumentos_comuns(restaurar_cfg)
+    restaurar_cfg.add_argument("--gravacao", required=True)
+    restaurar_cfg.add_argument("--artefato", default="candidato")
+    resolver_cfg = acoes_configuracao.add_parser("resolver")
+    resolver_cfg.add_argument("--workspace", dest="caminho")
+    resolver_cfg.add_argument("--json", action="store_true", dest="usar_json")
+    resolver_cfg.add_argument("--cabeca")
+    resolver_cfg.add_argument("--snapshot")
+    resolver_cfg.add_argument("--escolher")
+    resolver_cfg.add_argument("--confirmada", action="store_true")
     return parser
+
+
+def _argumentos_comuns(parser, confirmacao=True):
+    parser.add_argument("--workspace", dest="caminho")
+    parser.add_argument("--json", action="store_true", dest="usar_json")
+    parser.add_argument("--cabeca")
+    if confirmacao:
+        parser.add_argument("--confirmada", action="store_true")
 
 
 def executar(argumentos=None):
@@ -164,4 +209,28 @@ def executar(argumentos=None):
         return definir(opcoes.caminho, usar_json=opcoes.usar_json)
     if opcoes.comando == "workspace":
         return mostrar(usar_json=opcoes.usar_json)
+    if opcoes.comando == "configuracao" and opcoes.acao_configuracao is None:
+        return mostrar_configuracao(opcoes.caminho, opcoes.usar_json)
+    if opcoes.comando == "configuracao" and opcoes.acao_configuracao == "avaliar":
+        return avaliar_configuracao(opcoes.caminho, opcoes.usar_json)
+    if opcoes.comando == "configuracao" and opcoes.acao_configuracao == "gravar":
+        return gravar(opcoes.caminho, opcoes.usar_json, opcoes.confirmada, opcoes.cabeca)
+    if opcoes.comando == "configuracao" and opcoes.acao_configuracao == "adotar":
+        return adotar(opcoes.caminho, opcoes.usar_json, opcoes.confirmada, opcoes.cabeca)
+    if opcoes.comando == "configuracao" and opcoes.acao_configuracao == "defaults":
+        return defaults(opcoes.caminho, opcoes.usar_json, opcoes.confirmada, opcoes.cabeca)
+    if opcoes.comando == "configuracao" and opcoes.acao_configuracao == "rejeitar":
+        if opcoes.artefato and not opcoes.gravacao:
+            parser.error("--artefato exige --gravacao")
+        return rejeitar(opcoes.caminho, opcoes.usar_json, opcoes.confirmada,
+                        opcoes.cabeca, opcoes.usar_defaults, opcoes.gravacao, opcoes.artefato)
+    if opcoes.comando == "configuracao" and opcoes.acao_configuracao == "restaurar":
+        return restaurar(opcoes.caminho, opcoes.usar_json, opcoes.confirmada,
+                         opcoes.cabeca, opcoes.gravacao, opcoes.artefato)
+    if opcoes.comando == "configuracao" and opcoes.acao_configuracao == "resolver":
+        fase2 = (opcoes.snapshot is not None, opcoes.escolher is not None, opcoes.confirmada)
+        if any(fase2) and not all(fase2):
+            parser.error("--snapshot, --escolher e --confirmada precisam ser usados juntos")
+        return resolver_conflito(opcoes.caminho, opcoes.usar_json, opcoes.cabeca,
+                                 opcoes.snapshot, opcoes.escolher, opcoes.confirmada)
     return 2

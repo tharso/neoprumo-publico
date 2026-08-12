@@ -5,6 +5,7 @@ from datetime import datetime
 from pathlib import Path
 
 from .ativo import e_workspace, informar_indisponivel, resolver
+from .configuracao_estado import observar as observar_configuracao
 from .resultado_seed import campos_nulos, emitir_resumo, recusar_workspace
 from .workspace import inspecionar_estrutura
 
@@ -137,7 +138,13 @@ def resumir(caminho, instante=None):
         "pauta": pauta,
         "acervo": acervo,
         "estrutura": inspecionar_estrutura(workspace),
+        "configuracao": _resumo_configuracao(workspace),
     }
+
+
+def _resumo_configuracao(workspace):
+    estado = observar_configuracao(workspace)
+    return {"estado": estado["estado"], "avisos": estado["avisos"]}
 
 
 def executar_seed(caminho=None, usar_json=False, instante=None):

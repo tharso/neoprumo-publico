@@ -1,6 +1,5 @@
 import json
 import stat
-from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -71,11 +70,7 @@ def inspecionar_estrutura(caminho):
 
 def _conteudo_inicial(nome):
     if nome == ".neoprumo/workspace.json":
-        identidade = {
-            "layout": 1,
-            "criado_em": datetime.now(timezone.utc).isoformat(),
-        }
-        return json.dumps(identidade, ensure_ascii=False) + "\n"
+        return json.dumps({"layout": 1}, ensure_ascii=False) + "\n"
     titulo = "Pauta" if nome == "Pauta.md" else "Projetos"
     return f"# {titulo}\n"
 

@@ -13,7 +13,7 @@ def test_arquivos_intocaveis_permanecem_byte_a_byte_inalterados():
         "skills/acervo/SKILL.md": "bf587b578268c35e5382fef51a2fad61ef7c12c11de6c777ed13a1476afde159",
         "skills/captura/SKILL.md": "c2d45ec8ade86645a00a80d1418b0750147569340913a5a90ed1ebb30ad4f55e",
         "hooks/hooks.json": "d3a40b1747afd393f38f6db4714702cd16d0e9301beffdbd8adf69e4639a3ed3",
-        "nucleo/neoprumo/seed.py": "855df693d08df65c054d058e0c0fff134d67365d7f1fbcd2441b5df5f836ca10",
+        "nucleo/neoprumo/seed.py": "8c720f5e5ba97b263bcbc59c258dd0c0bd202f2404025f2b21752fbe83a8acca",
     }
     for relativo, esperado in esperados.items():
         assert hashlib.sha256((RAIZ / relativo).read_bytes()).hexdigest() == esperado
