@@ -13,6 +13,7 @@ from .despacho import despachar
 from .ressurgimento import executar_ressurgimento
 from .readocao import readotar
 from .comando_regime import executar_regime
+from .retrato import executar_retrato
 from .seed import executar_seed
 from .sonda import sondar
 from .superficie_aplicar import aplicar_superficie
@@ -76,6 +77,9 @@ def criar_parser():
     seed = comandos.add_parser("seed", help="resume o estado do workspace")
     seed.add_argument("--workspace", dest="caminho")
     seed.add_argument("--json", action="store_true", dest="usar_json")
+    retrato = comandos.add_parser("retrato", help="marca o retrato do dia")
+    retrato.add_argument("--workspace", dest="caminho")
+    retrato.add_argument("--json", action="store_true", dest="usar_json")
     ressurgimento = comandos.add_parser(
         "ressurgimento", help="reapresenta um item envelhecido do acervo"
     )
@@ -217,6 +221,11 @@ def executar(argumentos=None):
         )
     if opcoes.comando == "seed":
         return executar_seed(
+            caminho=opcoes.caminho,
+            usar_json=opcoes.usar_json,
+        )
+    if opcoes.comando == "retrato":
+        return executar_retrato(
             caminho=opcoes.caminho,
             usar_json=opcoes.usar_json,
         )
