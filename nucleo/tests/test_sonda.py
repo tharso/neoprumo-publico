@@ -50,6 +50,22 @@ def test_sonda_hook_resume_workspace_com_paridade_e_sem_escrever(
     assert fotografar(workspace, configuracao) == antes
 
 
+def test_sonda_hook_mantem_paridade_das_linhas_de_regime(tmp_path, executar_cli):
+    workspace = tmp_path / "regimes"
+    assert executar_cli("setup", workspace).returncode == 0
+    (workspace / "Pauta.md").write_text(
+        "# Pauta\n- [ ] Abrir portas [à vista, vence 2099-08-12]\n",
+        encoding="utf-8",
+    )
+    seed = executar_cli("seed")
+
+    resultado = executar_cli("sonda", "--hook")
+
+    contexto = assert_envelope_portatil(resultado)
+    assert contexto.split("\n", 1)[1] == seed.stdout.rstrip("\n")
+    assert "À vista: 1 — Abrir portas" in contexto
+
+
 def test_sonda_hook_orienta_quando_nao_ha_workspace_utilizavel(executar_cli):
     resultado = executar_cli("sonda", "--hook")
 

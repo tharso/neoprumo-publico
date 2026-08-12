@@ -9,6 +9,10 @@ Conduzir uma conversa curta, um item por vez. Localizar o workspace ativo, ler o
 
 Executar a decisão somente pelo núcleo: `bin/neoprumo despacho <item> <destino> [nome-do-projeto]`. Quando estiver rodando como plugin, usar `${CLAUDE_PLUGIN_ROOT}/bin/neoprumo despacho`. Reportar o resultado com a resposta do comando. Nunca mover, apagar ou editar os arquivos na mão.
 
+Na pauta, o dono pode acrescentar regime e prazo no mesmo gesto: `--regime a-vista`, `--regime em-espera`, `--regime dormindo --ate AAAA-MM-DD` e/ou `--vence AAAA-MM-DD`. Sem opção, a entrada nasce normal e sem marcador. O núcleo grava o sufixo canônico na linha do item.
+
+O núcleo só aceita datas `AAAA-MM-DD`. Quando o dono disser “sexta”, “em setembro” ou outra data natural, traduzir e mostrar a data completa; só executar depois que ele confirmar. Se o prazo ficar antes da data de acordar, explicar que o item cobrará na abertura mesmo dormindo e pedir confirmação específica antes de repetir o comando com `--confirmado`. Nunca usar essa flag por hábito nem inferir confirmação.
+
 Quando o usuário pedir para decidir no visual ou gerar a página, executar `bin/neoprumo superficie despacho`, informar o caminho devolvido e orientar a abrir o arquivo HTML no navegador. No plugin, usar o mesmo prefixo `${CLAUDE_PLUGIN_ROOT}`.
 
 Quando o usuário colar o bloco de respostas da página, passá-lo intacto pela entrada padrão de `bin/neoprumo superficie aplicar`. Nunca interpretar nem executar o bloco na mão. Apresentar o relatório devolvido pelo núcleo e trazer cada observação para a conversa, sem gravá-la no item ou no destino.

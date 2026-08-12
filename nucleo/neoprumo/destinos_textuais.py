@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 
 from .resultado_despacho import envelope, recusa_falha, recusa_item_vazio
+from .regimes import formatar_marcador
 
 
 AVISOS_RECRIACAO = {
@@ -82,11 +83,11 @@ def _separar_conteudo(conteudo):
     return None, []
 
 
-def _formatar_pauta(conteudo, identificador, data):
+def _formatar_pauta(conteudo, identificador, data, regime=None, vence=None):
     primeira, restantes = _separar_conteudo(conteudo)
     if primeira is None:
         return None
-    linhas = [f"- [ ] {primeira}\n"]
+    linhas = [f"- [ ] {primeira}{formatar_marcador(regime, vence)}\n"]
     linhas.extend(f"  {linha}\n" for linha in restantes)
     linhas.append(f"  — inbox {identificador}, despachado em {data}\n")
     return "".join(linhas)
@@ -101,7 +102,7 @@ def _formatar_nota_projeto(conteudo, identificador, data):
     return "".join(linhas)
 
 
-def _gravar_atomico(caminho, conteudo):
+def gravar_atomico(caminho, conteudo):
     temporario = None
     try:
         with tempfile.NamedTemporaryFile(
@@ -181,13 +182,13 @@ def _recusa_compensacao(item, arquivo, workspace, destino):
 def _concluir(
     item, arquivo, conteudo, anterior, existia, acoes, mensagem, workspace, destino
 ):
-    _gravar_atomico(arquivo, conteudo)
+    gravar_atomico(arquivo, conteudo)
     try:
         item.unlink()
     except OSError as erro:
         try:
             if existia:
-                _gravar_atomico(arquivo, anterior)
+                gravar_atomico(arquivo, anterior)
             else:
                 arquivo.unlink()
         except OSError:
@@ -206,15 +207,17 @@ def _concluir(
     )
 
 
-def despachar_pauta(item, conteudo, workspace):
+def despachar_pauta(item, conteudo, workspace, regime=None, vence=None,
+                    acoes_regime=None, incluir_campos=False):
     registro = _formatar_pauta(
-        conteudo, item.stem, datetime.now().strftime("%Y-%m-%d")
+        conteudo, item.stem, datetime.now().astimezone().strftime("%Y-%m-%d"), regime, vence
     )
     if registro is None:
         return 1, recusa_item_vazio(item, workspace, "pauta")
     pauta = workspace / "Pauta.md"
     try:
         anterior, acoes, existia = _preparar_arquivo_textual(pauta, "# Pauta\n")
+        acoes.extend(acoes_regime or [])
         resultado = _concluir(
             item,
             pauta,
@@ -228,7 +231,12 @@ def despachar_pauta(item, conteudo, workspace):
         )
     except OSError as erro:
         return 1, recusa_falha(item, workspace, "pauta", erro)
-    return resultado if isinstance(resultado, tuple) else (0, resultado)
+    if isinstance(resultado, tuple):
+        return resultado
+    if incluir_campos:
+        resultado["regime"] = regime
+        resultado["vence"] = vence
+    return 0, resultado
 
 
 def despachar_projeto(item, conteudo, nome, workspace):

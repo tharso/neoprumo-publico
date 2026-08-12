@@ -7,6 +7,7 @@ from pathlib import Path
 from .ativo import e_workspace, informar_indisponivel, resolver
 from .configuracao_estado import observar as observar_configuracao
 from .resultado_seed import campos_nulos, emitir_resumo, recusar_workspace
+from .regimes import analisar_linha
 from .workspace import inspecionar_estrutura
 
 
@@ -96,7 +97,7 @@ def _observar_itens(pasta, referencia, incluir_mais_novo):
     return resultado, problemas
 
 
-def _observar_pauta(caminho):
+def _observar_pauta(caminho, hoje):
     problema = _validar_area(caminho, "arquivo")
     if problema:
         return None, [problema]
@@ -106,12 +107,51 @@ def _observar_pauta(caminho):
         return None, ["Pauta.md: o conteúdo não é texto UTF-8."]
     except OSError as erro:
         return None, [f"Pauta.md: não pôde ser lida ({_motivo(erro)})."]
+    abertas = [linha for linha in linhas if linha.startswith("- [ ]")]
+    regimes = {"a_vista": 0, "dormindo": 0, "em_espera": 0, "normal": 0}
+    a_vista = []
+    acordaram = 0
+    vencidos = vence_hoje = 0
+    proximos = []
+    problemas = []
+    for linha in abertas:
+        leitura = analisar_linha(linha)
+        problemas.extend(leitura["problemas"])
+        regime = leitura["regime"]
+        nome = regime["nome"] if regime else "normal"
+        if nome == "dormindo" and regime["ate"] <= hoje.isoformat():
+            nome = "normal"
+            if regime["ate"] == hoje.isoformat():
+                acordaram += 1
+        regimes[nome] += 1
+        vence = leitura["vence"]
+        distancia = (datetime.strptime(vence, "%Y-%m-%d").date() - hoje).days if vence else None
+        if distancia is not None:
+            if distancia < 0:
+                vencidos += 1
+            elif distancia == 0:
+                vence_hoje += 1
+            else:
+                proximos.append(distancia)
+        if nome == "a_vista":
+            a_vista.append({
+                "manchete": leitura["manchete"],
+                "vence_em_dias": distancia,
+            })
     return {
-        "abertos": sum(linha.startswith("- [ ]") for linha in linhas),
+        "abertos": len(abertas),
         "concluidos": sum(
             linha.startswith(("- [x]", "- [X]")) for linha in linhas
         ),
-    }, []
+        "regimes": regimes,
+        "a_vista": a_vista,
+        "acordaram_hoje": acordaram,
+        "prazos": {
+            "vencidos": vencidos,
+            "vence_hoje": vence_hoje,
+            "proximo_em_dias": min(proximos) if proximos else None,
+        },
+    }, problemas
 
 
 def resumir(caminho, instante=None):
@@ -126,7 +166,9 @@ def resumir(caminho, instante=None):
     acervo, problemas_acervo = _observar_itens(
         workspace / "Acervo", referencia, incluir_mais_novo=False
     )
-    pauta, problemas_pauta = _observar_pauta(workspace / "Pauta.md")
+    pauta, problemas_pauta = _observar_pauta(
+        workspace / "Pauta.md", referencia.date()
+    )
     return {
         "status": "resumido",
         "problemas": problemas_inbox + problemas_pauta + problemas_acervo,

@@ -31,7 +31,14 @@ def test_resumo_de_workspace_saudavel_e_vazio(tmp_path, executar_cli):
             "idade_mais_antigo_dias": None,
             "idade_mais_novo_dias": None,
         },
-        "pauta": {"abertos": 0, "concluidos": 0},
+        "pauta": {
+            "abertos": 0,
+            "concluidos": 0,
+            "regimes": {"a_vista": 0, "dormindo": 0, "em_espera": 0, "normal": 0},
+            "a_vista": [],
+            "acordaram_hoje": 0,
+            "prazos": {"vencidos": 0, "vence_hoje": 0, "proximo_em_dias": None},
+        },
         "acervo": {"total": 0, "idade_mais_antigo_dias": None},
         "estrutura": {"status": "saudavel", "problemas": []},
         "configuracao": {"estado": "nunca configurada", "avisos": []},
@@ -107,7 +114,14 @@ def test_seed_conta_checklists_da_pauta_pela_regra_lexical(
 
     resultado = resumir(workspace, instante=INSTANTE)
 
-    assert resultado["pauta"] == {"abertos": 2, "concluidos": 2}
+    assert resultado["pauta"] == {
+        "abertos": 2,
+        "concluidos": 2,
+        "regimes": {"a_vista": 0, "dormindo": 0, "em_espera": 0, "normal": 2},
+        "a_vista": [],
+        "acordaram_hoje": 0,
+        "prazos": {"vencidos": 0, "vence_hoje": 0, "proximo_em_dias": None},
+    }
 
 
 def test_seed_cli_json_entrega_envelope_completo_do_workspace_ativo(

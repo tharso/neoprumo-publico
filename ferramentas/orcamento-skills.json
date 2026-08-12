@@ -2,9 +2,11 @@
   "skills": {
     "acervo": 294,
     "captura": 196,
-    "despacho": 375,
+    "despacho": 484,
+    "pauta": 197,
     "sessao": 346,
     "sessao/extensoes/pilha-grande": 99,
+    "sessao/extensoes/primeira-sessao-do-dia": 207,
     "sessao/extensoes/ressurgimento": 333
   }
 }

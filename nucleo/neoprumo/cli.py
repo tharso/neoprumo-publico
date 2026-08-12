@@ -12,6 +12,7 @@ from .configuracao_historico import rejeitar, restaurar
 from .despacho import despachar
 from .ressurgimento import executar_ressurgimento
 from .readocao import readotar
+from .comando_regime import executar_regime
 from .seed import executar_seed
 from .sonda import sondar
 from .superficie_aplicar import aplicar_superficie
@@ -47,6 +48,24 @@ def criar_parser():
     despacho.add_argument("nome_do_projeto", nargs="?")
     despacho.add_argument("--workspace", dest="caminho")
     despacho.add_argument("--json", action="store_true", dest="usar_json")
+    despacho.add_argument(
+        "--regime", choices=("a-vista", "dormindo", "em-espera")
+    )
+    despacho.add_argument("--ate")
+    despacho.add_argument("--vence")
+    despacho.add_argument("--confirmado", action="store_true")
+    regime = comandos.add_parser("regime", help="muda o regime de uma entrada da pauta")
+    regime.add_argument("trecho")
+    regime.add_argument(
+        "regime", nargs="?", choices=("a-vista", "dormindo", "em-espera", "normal")
+    )
+    regime.add_argument("--ate")
+    regime.add_argument("--vence")
+    regime.add_argument("--sem-prazo", action="store_true", dest="sem_prazo")
+    regime.add_argument("--confirmado", action="store_true")
+    regime.add_argument("--origem")
+    regime.add_argument("--workspace", dest="caminho")
+    regime.add_argument("--json", action="store_true", dest="usar_json")
     acervo = comandos.add_parser(
         "acervo", help="decide o destino de um item do acervo"
     )
@@ -165,6 +184,18 @@ def executar(argumentos=None):
             caminho=opcoes.caminho,
             usar_json=opcoes.usar_json,
         )
+    if opcoes.comando == "regime":
+        return executar_regime(
+            trecho=opcoes.trecho,
+            regime=opcoes.regime,
+            ate=opcoes.ate,
+            vence=opcoes.vence,
+            sem_prazo=opcoes.sem_prazo,
+            confirmado=opcoes.confirmado,
+            origem=opcoes.origem,
+            caminho=opcoes.caminho,
+            usar_json=opcoes.usar_json,
+        )
     if opcoes.comando == "despacho":
         return despachar(
             opcoes.item,
@@ -172,6 +203,10 @@ def executar(argumentos=None):
             nome_do_projeto=opcoes.nome_do_projeto,
             caminho=opcoes.caminho,
             usar_json=opcoes.usar_json,
+            regime=opcoes.regime,
+            ate=opcoes.ate,
+            vence=opcoes.vence,
+            confirmado=opcoes.confirmado,
         )
     if opcoes.comando == "acervo":
         return decidir_acervo(

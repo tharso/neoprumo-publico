@@ -15,7 +15,7 @@ from .resultado_despacho import (
     recusa_falha,
     recusa_reconferencia,
 )
-from .validacao_despacho import nome_projeto_valido
+from .validacao_despacho import nome_projeto_valido, validar_regime_despacho
 
 
 DESTINOS = ("pauta", "acervo", "projeto", "lixo")
@@ -23,15 +23,12 @@ AVISO_ACERVO_RECRIADO = (
     "A pasta Acervo estava faltando e foi recriada. "
     "Rode doctor para conferir o workspace."
 )
-
-
 def _esta_dentro(caminho, workspace):
     try:
         caminho.resolve().relative_to(workspace.resolve())
         return True
     except ValueError:
         return False
-
 
 def _encontrar_item(inbox, nome):
     exato = inbox / nome
@@ -222,13 +219,9 @@ def _reconferir(item, workspace, destino, digital_esperada):
 
 
 def operar_despacho(
-    item,
-    destino,
-    nome_do_projeto=None,
-    caminho=None,
-    item_resolvido=None,
-    bytes_validados=None,
-    digital_esperada=None,
+    item, destino, nome_do_projeto=None, caminho=None, item_resolvido=None,
+    bytes_validados=None, digital_esperada=None, regime=None, ate=None,
+    vence=None, confirmado=False, incluir_campos_regime=False,
 ):
     workspace, falha = resolver_workspace_despacho(caminho, destino)
     if falha:
@@ -241,6 +234,10 @@ def operar_despacho(
             workspace,
             destino,
         )
+    validacao = validar_regime_despacho(destino, regime, ate, vence, confirmado)
+    falha_regime, objeto_regime, prazo, acoes_regime = validacao
+    if falha_regime:
+        return 1, recusa(falha_regime, falha_regime, None, workspace, destino)
     if destino == "projeto":
         falha = _validar_nome_projeto(nome_do_projeto, workspace)
         if falha:
@@ -263,13 +260,12 @@ def operar_despacho(
     else:
         conteudo = bytes_validados.decode("utf-8")
     if destino == "pauta":
-        return despachar_pauta(encontrado, conteudo, workspace)
+        return despachar_pauta(encontrado, conteudo, workspace, objeto_regime,
+                               prazo, acoes_regime, incluir_campos_regime)
     return despachar_projeto(encontrado, conteudo, nome_do_projeto, workspace)
 
 
-def operar_adiamento(
-    item, caminho, item_resolvido=None, digital_esperada=None
-):
+def operar_adiamento(item, caminho, item_resolvido=None, digital_esperada=None):
     workspace, falha = resolver_workspace_despacho(caminho, None)
     if falha:
         return 1, falha
@@ -291,7 +287,14 @@ def operar_adiamento(
     )
 
 
-def despachar(item, destino, nome_do_projeto=None, caminho=None, usar_json=False):
-    codigo, resultado = operar_despacho(item, destino, nome_do_projeto, caminho)
+def despachar(
+    item, destino, nome_do_projeto=None, caminho=None, usar_json=False,
+    regime=None, ate=None, vence=None, confirmado=False
+):
+    codigo, resultado = operar_despacho(
+        item, destino, nome_do_projeto, caminho,
+        regime=regime, ate=ate, vence=vence, confirmado=confirmado,
+        incluir_campos_regime=True,
+    )
     emitir(resultado, usar_json, erro=codigo != 0)
     return codigo

@@ -52,6 +52,44 @@ def _idade(dias):
     return f"{dias} {'dia' if dias == 1 else 'dias'}"
 
 
+def _prazo_item(dias):
+    if dias is None:
+        return ""
+    if dias == 0:
+        return " (vence hoje)"
+    if dias > 0:
+        return f" (vence em {dias} {'dia' if dias == 1 else 'dias'})"
+    atraso = abs(dias)
+    return f" (venceu há {atraso} {'dia' if atraso == 1 else 'dias'})"
+
+
+def _linhas_da_pauta(pauta):
+    linhas = []
+    if pauta["regimes"]["a_vista"]:
+        itens = "; ".join(
+            item["manchete"] + _prazo_item(item["vence_em_dias"])
+            for item in pauta["a_vista"]
+        )
+        linhas.append(f"À vista: {pauta['regimes']['a_vista']} — {itens}.")
+    acordaram = pauta["acordaram_hoje"]
+    if acordaram:
+        verbo = "Acordou hoje" if acordaram == 1 else "Acordaram hoje"
+        linhas.append(f"{verbo}: {acordaram}.")
+    prazos = pauta["prazos"]
+    partes = []
+    if prazos["vencidos"]:
+        partes.append(_quantidade(prazos["vencidos"], "vencido", "vencidos"))
+    if prazos["vence_hoje"]:
+        n = prazos["vence_hoje"]
+        partes.append(f"{n} {'vence' if n == 1 else 'vencem'} hoje")
+    if prazos["proximo_em_dias"] is not None:
+        dias = prazos["proximo_em_dias"]
+        partes.append(f"próximo vence em {dias} {'dia' if dias == 1 else 'dias'}")
+    if partes:
+        linhas.append("Prazos: " + "; ".join(partes) + ".")
+    return linhas
+
+
 def linhas_humanas(resultado):
     inbox = resultado["inbox"]
     if inbox is None:
@@ -95,7 +133,10 @@ def linhas_humanas(resultado):
             "Estrutura: com "
             f"{_quantidade(len(estrutura['problemas']), 'problema', 'problemas')}."
         )
-    linhas = [linha_inbox, linha_pauta, linha_acervo, linha_estrutura]
+    linhas = [linha_inbox, linha_pauta]
+    if pauta is not None:
+        linhas.extend(_linhas_da_pauta(pauta))
+    linhas.extend([linha_acervo, linha_estrutura])
     linhas.extend(f"Aviso: {problema}" for problema in resultado["problemas"])
     return linhas
 

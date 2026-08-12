@@ -70,6 +70,8 @@ def test_superficie_aplicar_executa_as_quatro_moradas_e_adia_na_ordem(
     assert (dados["despachados"], dados["recusados"], dados["adiados"]) == (4, 0, 1)
     assert [item["entrada"] for item in dados["resultados"]] == [r["item"] for r in respostas]
     assert dados["resultados"][0]["observacao"] == "  urgente  "
+    assert "regime" not in dados["resultados"][0]
+    assert "vence" not in dados["resultados"][0]
     assert dados["resultados"][4] == {
         "status": "adiado",
         "problemas": [],
