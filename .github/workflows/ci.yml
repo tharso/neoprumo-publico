@@ -1,16 +1,32 @@
 name: CI
 
+# Dieta da #44: a franquia de Actions é da CONTA (repos privados) e o macOS
+# fatura a 10x. Este arquivo viaja junto pro espelho público, onde o CI é
+# gratuito e roda por push do sync na main — por isso o push segue declarado
+# aqui e quem economiza é a condição do job: no repo privado, push se
+# auto-pula e só pull_request (e disparo manual) gastam. Decisão registrada
+# no log de decisões do projeto (2026-08-12, tópico workflow).
 on:
   push:
+    branches: [main]
   pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   qualidade:
+    # Push só trabalha fora do repo privado de desenvolvimento (espelho e
+    # forks). PR e disparo manual rodam em qualquer repo.
+    if: github.event_name != 'push' || github.repository != 'tharso/NeoPrumo'
     strategy:
       fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-        python: ["3.10", "3.13"]
+      # Em pull_request, macOS roda só no 3.13 (minuto de macOS desconta a
+      # franquia a 10x; piso 3.10 segue coberto no ubuntu). Push (espelho
+      # público) e disparo manual rodam a matriz completa.
+      matrix: ${{ github.event_name == 'pull_request' && fromJSON('{"include":[{"os":"ubuntu-latest","python":"3.10"},{"os":"ubuntu-latest","python":"3.13"},{"os":"macos-latest","python":"3.13"}]}') || fromJSON('{"os":["ubuntu-latest","macos-latest"],"python":["3.10","3.13"]}') }}
     runs-on: ${{ matrix.os }}
 
     steps:
