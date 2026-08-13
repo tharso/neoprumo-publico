@@ -240,7 +240,6 @@ def test_item_novo_depois_da_pagina_nao_envelhece(tmp_path, executar_cli, execut
     ("arquivo", "linha", "decisao"),
     [
         ("Pauta.md", "  — inbox abc, despachado em 2026-08-05\n", "acervo"),
-        ("Projetos.md", "- 2026-08-05 (inbox abc): já foi\n", "pauta"),
     ],
 )
 def test_marcador_em_qualquer_destino_envelhece_mesmo_com_decisao_trocada(
@@ -320,7 +319,6 @@ def test_acoes_de_envelhecimento_misto_sao_exatas(tmp_path, executar_cli, execut
     [
         ("item-binario", "pauta", b"\xff"),
         ("item-vazio", "pauta", b" \n\t"),
-        ("projetos-binario", "projeto", b"nota"),
     ],
 )
 def test_preflight_recusa_dominio_previsivel_sem_efeito(
@@ -352,6 +350,10 @@ def test_projetos_nao_utf8_aparece_uma_vez_com_varias_respostas_projeto(
     criar_item(workspace, "primeiro.md", b"primeiro")
     criar_item(workspace, "segundo.md", b"segundo")
     (workspace / "Projetos.md").write_bytes(b"\xff")
+    assert executar_cli(
+        "assunto", "registrar", "Museu", "--id", "museu",
+        "--workspace", workspace, "--json",
+    ).returncode == 0
 
     resultado = aplicar(
         executar_modulo,
@@ -363,11 +365,11 @@ def test_projetos_nao_utf8_aparece_uma_vez_com_varias_respostas_projeto(
     )
 
     dados = json.loads(resultado.stdout)
-    assert dados["problemas"].count("Projetos.md não é texto UTF-8.") == 1
-    assert dados["acoes"].count("Confira Projetos.md e tente novamente.") == 1
+    assert dados["status"] == "aplicado"
+    assert not any("Projetos.md" in problema for problema in dados["problemas"])
 
 
-@pytest.mark.parametrize(("arquivo", "tipo"), [("Pauta.md", "pasta"), ("Projetos.md", "symlink")])
+@pytest.mark.parametrize(("arquivo", "tipo"), [("Pauta.md", "pasta")])
 def test_preflight_recusa_destino_textual_nao_regular(
     arquivo, tipo, tmp_path, executar_cli, executar_modulo
 ):

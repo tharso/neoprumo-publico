@@ -36,7 +36,7 @@ def resposta(nome, decisao, conteudo=b"abc", **extras):
     }
 
 
-@pytest.mark.parametrize("destino", ["pauta", "projeto"])
+@pytest.mark.parametrize("destino", ["pauta"])
 @pytest.mark.parametrize("preexistente", [True, False])
 @pytest.mark.parametrize("via", ["unitario", "lote"])
 def test_falha_ao_remover_origem_compensa_destino_textual(
@@ -83,7 +83,7 @@ def test_falha_ao_remover_origem_compensa_destino_textual(
         assert not arquivo.exists()
 
 
-@pytest.mark.parametrize("destino", ["pauta", "projeto"])
+@pytest.mark.parametrize("destino", ["pauta"])
 @pytest.mark.parametrize("via", ["unitario", "lote"])
 def test_falha_da_compensacao_avisa_sobra_em_mensagem_autocontida(
     destino, via, tmp_path, executar_cli, monkeypatch
@@ -251,20 +251,20 @@ def test_oserror_na_reconferencia_recusa_item_isolado_sem_efeito(
 def test_falha_imprevisivel_no_meio_nao_interrompe_demais_e_recolagem_envelhece(
     tmp_path, executar_cli, monkeypatch
 ):
-    from neoprumo import despacho as modulo_despacho
+    from neoprumo import movimento_acervo
     from neoprumo.superficie_aplicar import operar_aplicacao
 
     workspace = criar_workspace(tmp_path, executar_cli, "falha-meio")
     for nome in ("um.md", "dois.md", "tres.md"):
         criar_item(workspace, nome)
-    replace_real = modulo_despacho.Path.replace
+    copiar_real = movimento_acervo._copiar_exclusivo
 
-    def falhar_no_meio(caminho, destino):
-        if caminho.name == "dois.md":
+    def falhar_no_meio(destino, dados, modo, tempos):
+        if destino.name == "dois.md":
             raise PermissionError(13, "Permissão negada")
-        return replace_real(caminho, destino)
+        return copiar_real(destino, dados, modo, tempos)
 
-    monkeypatch.setattr(modulo_despacho.Path, "replace", falhar_no_meio)
+    monkeypatch.setattr(movimento_acervo, "_copiar_exclusivo", falhar_no_meio)
     texto = bloco([resposta(nome, "acervo") for nome in ("um.md", "dois.md", "tres.md")])
     codigo, dados, _ = operar_aplicacao(workspace, texto)
     codigo_recolagem, recolagem, _ = operar_aplicacao(workspace, texto)

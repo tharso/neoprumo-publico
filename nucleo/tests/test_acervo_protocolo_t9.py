@@ -208,7 +208,7 @@ def test_aplicar_acervo_ignora_projetos(tipo, tmp_path, executar_cli, executar_m
     workspace = criar_workspace(tmp_path, executar_cli, f"projetos-{tipo}")
     criar_item(workspace, "abc.md")
     projetos = workspace / "Projetos.md"
-    projetos.unlink()
+    projetos.unlink(missing_ok=True)
     if tipo == "binario":
         projetos.write_bytes(b"\xff")
     elif tipo == "pasta":

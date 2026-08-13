@@ -45,6 +45,10 @@ def test_superficie_aplicar_executa_as_quatro_moradas_e_adia_na_ordem(
     tmp_path, executar_cli, executar_modulo
 ):
     workspace = criar_workspace(tmp_path, executar_cli)
+    assert executar_cli(
+        "assunto", "registrar", "Museu", "--id", "museu",
+        "--workspace", workspace, "--json",
+    ).returncode == 0
     criar_item(workspace, "pauta.md", "Fazer o vitral\nMedir a janela")
     bytes_acervo = b"\x00\xff" + "referência".encode("utf-8")
     criar_item(workspace, "acervo.bin", bytes_acervo)
@@ -88,7 +92,9 @@ def test_superficie_aplicar_executa_as_quatro_moradas_e_adia_na_ordem(
     assert dados["mensagem"] == "4 despachados, 0 recusados, 1 adiado."
     assert "Fazer o vitral" in (workspace / "Pauta.md").read_text(encoding="utf-8")
     assert (workspace / "Acervo" / "acervo.bin").read_bytes() == bytes_acervo
-    assert "## Museu" in (workspace / "Projetos.md").read_text(encoding="utf-8")
+    assert "(inbox projeto.md): Conversar com a curadora" in (
+        workspace / "Assuntos" / "museu.md"
+    ).read_text(encoding="utf-8")
     assert (workspace / ".neoprumo" / "lixo" / "lixo.md").is_file()
     assert adiado.is_file()
 
@@ -217,6 +223,10 @@ def test_superficie_aplicar_relatorio_humano_delimita_textos_externos(
     tmp_path, executar_cli, executar_modulo
 ):
     workspace = criar_workspace(tmp_path, executar_cli, "humano")
+    assert executar_cli(
+        "assunto", "registrar", 'Projeto "raro"', "--id", "projeto-raro",
+        "--workspace", workspace, "--json",
+    ).returncode == 0
     nome = 'nome"forjado.md'
     criar_item(workspace, nome, "nota")
     resposta = {

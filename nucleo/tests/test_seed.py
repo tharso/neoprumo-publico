@@ -231,7 +231,7 @@ def test_seed_humano_povoado_usa_plural_e_mostra_problemas_da_estrutura(
         "- [X] concluída dois\n",
         encoding="utf-8",
     )
-    (workspace / "Projetos.md").unlink()
+    (workspace / "Assuntos").rmdir()
     (workspace / "Diario").rmdir()
 
     codigo = executar_seed(workspace, instante=instante)

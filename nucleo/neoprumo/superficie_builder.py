@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 
 from .seed import _data_pelo_nome
+from .assunto_marcadores import fotografar_marcadores
 from .destinos_textuais import fotografar_destinos, marcador_em_destinos
 from .superficie_base import (
     campos_builder_nulos,
@@ -85,7 +86,7 @@ def _nome_tem_controle(nome):
     return any(unicodedata.category(caractere) == "Cc" for caractere in nome)
 
 
-def _observar_item(entrada, referencia, problemas, destinos):
+def _observar_item(entrada, referencia, problemas, destinos, marcadores_assunto):
     if entrada.name.startswith("."):
         return None
     if not codificavel_utf8(entrada.name):
@@ -145,7 +146,10 @@ def _observar_item(entrada, referencia, problemas, destinos):
         problemas.append(
             f"Inbox: {entrada.name} tem um nome que não pode ser decidido pela página."
         )
-    elif dados is not None and marcador_em_destinos(destinos, Path(entrada.name).stem):
+    if dados is not None and (
+        marcador_em_destinos(destinos, Path(entrada.name).stem)
+        or marcadores_assunto.get(entrada.name)
+    ):
         digital = None
         aviso = AVISO_MARCADOR
         problemas.append(
@@ -163,13 +167,15 @@ def _observar_item(entrada, referencia, problemas, destinos):
     }
 
 
-def _enumerar(inbox, referencia, destinos):
+def _enumerar(inbox, referencia, destinos, marcadores_assunto, problemas_assunto):
     itens = []
-    problemas = []
+    problemas = list(problemas_assunto)
     try:
         with os.scandir(inbox) as entradas:
             for entrada in entradas:
-                item = _observar_item(entrada, referencia, problemas, destinos)
+                item = _observar_item(
+                    entrada, referencia, problemas, destinos, marcadores_assunto
+                )
                 if item is not None:
                     itens.append(item)
     except OSError as erro:
@@ -219,7 +225,10 @@ def operar_builder(caminho=None, instante=None):
             "Rode doctor para conferir o workspace e tente novamente.",
             "Os destinos textuais não puderam ser conferidos.",
         )
-    itens, problemas = _enumerar(inbox, referencia, destinos)
+    marcadores_assunto, problemas_assunto = fotografar_marcadores(workspace)
+    itens, problemas = _enumerar(
+        inbox, referencia, destinos, marcadores_assunto, problemas_assunto
+    )
     if itens is None:
         return 1, _recusa(
             workspace,

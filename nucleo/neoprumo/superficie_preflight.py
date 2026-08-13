@@ -6,6 +6,7 @@ import unicodedata
 from pathlib import Path
 
 from .destinos_textuais import fotografar_destinos, marcador_em_destinos
+from .assunto_marcadores import fotografar_marcadores
 from .superficie_base import campos_aplicar_nulos, codificavel_utf8
 from .validacao_despacho import nome_projeto_valido
 
@@ -179,8 +180,9 @@ def _falhas_e_fotografia(resolvidas, workspace):
     return planos, destinos, falhas
 
 
-def _envelhecimento(planos, destinos):
+def _envelhecimento(planos, destinos, workspace):
     causas = []
+    marcadores_assunto, problemas = fotografar_marcadores(workspace)
     for item in planos:
         if item["motivo_resolucao"] in ("inexistente", "ambiguo"):
             texto = (
@@ -200,7 +202,13 @@ def _envelhecimento(planos, destinos):
                 f"já há registro deste item em {arquivo} — possível sobra de uma aplicação anterior; confira o destino e despache este item na conversa",
                 True,
             ))
-    return causas
+        for arquivo in marcadores_assunto.get(item["caminho"].name, []):
+            causas.append((
+                item["item"],
+                f"já há registro deste item em {arquivo} — possível sobra de uma aplicação anterior; confira o destino e despache este item na conversa",
+                True,
+            ))
+    return causas, problemas
 
 
 def _recusa_envelhecida(workspace, causas):
@@ -226,7 +234,6 @@ def _recusa_envelhecida(workspace, causas):
 
 def _dominio(planos, destinos, workspace):
     problemas, acoes = [], []
-    projetos_conferido = False
     for nome, foto in destinos.items():
         if foto["existe"] and not foto["regular"]:
             problemas.append(f"{nome} precisa ser um arquivo regular.")
@@ -243,17 +250,6 @@ def _dominio(planos, destinos, workspace):
         if not any(linha.strip() for linha in texto.splitlines()):
             problemas.append(f"{item['item']}: o item não contém texto aproveitável neste destino.")
             acoes.append("Use o destino acervo para preservar o arquivo como está.")
-        if (
-            item["decisao"] == "projeto"
-            and destinos["Projetos.md"]["regular"]
-            and not projetos_conferido
-        ):
-            projetos_conferido = True
-            try:
-                destinos["Projetos.md"]["bytes"].decode("utf-8")
-            except UnicodeDecodeError:
-                problemas.append("Projetos.md não é texto UTF-8.")
-                acoes.append("Confira Projetos.md e tente novamente.")
     if not problemas:
         return None
     return _recusa(
@@ -289,12 +285,14 @@ def conferir(bloco, workspace):
             "Não foi possível conferir a página agora. Confira as permissões e tente novamente.",
         )
         return {"recusa": recusa, "plano": None}
-    causas = _envelhecimento(planos, destinos)
+    causas, avisos_marcadores = _envelhecimento(planos, destinos, workspace)
     if causas:
-        return {"recusa": _recusa_envelhecida(workspace, causas), "plano": None}
+        recusa = _recusa_envelhecida(workspace, causas)
+        recusa["problemas"].extend(avisos_marcadores)
+        return {"recusa": recusa, "plano": None}
     recusa = _dominio(planos, destinos, workspace)
     if recusa:
         return {"recusa": recusa, "plano": None}
     for item in planos:
         item.pop("motivo_resolucao", None)
-    return {"recusa": None, "plano": planos}
+    return {"recusa": None, "plano": planos, "problemas": avisos_marcadores}

@@ -1,26 +1,24 @@
 ---
 name: despacho
-description: Decide o destino dos itens da Inbox. Use quando o usuário quiser despachar, processar ou esvaziar a inbox, ou decidir se algo vira pauta, acervo, projeto ou lixo.
+description: Decide itens da Inbox: pauta, acervo, assunto/projeto ou lixo, inclusive associação ao guardar.
 ---
 
 # Despacho
 
-Conduzir uma conversa curta, um item por vez. Localizar o workspace ativo, ler o item da Inbox e apresentar seu conteúdo fiel junto da idade. Perguntar o destino: pauta, acervo, projeto ou lixo. Se for projeto, colher o nome.
+Conduzir conversa curta, um item por vez. Localizar o workspace, ler o item fielmente e mostrar conteúdo e idade. Perguntar: pauta, acervo, assunto/projeto ou lixo. “Guarda isso pro X” significa acervo associado ao assunto X.
 
-Executar a decisão somente pelo núcleo: `bin/neoprumo despacho <item> <destino> [nome-do-projeto]`. Quando estiver rodando como plugin, usar `${CLAUDE_PLUGIN_ROOT}/bin/neoprumo despacho`. Reportar o resultado com a resposta do comando. Nunca mover, apagar ou editar os arquivos na mão.
+Executar somente pelo núcleo: `bin/neoprumo despacho <item> <destino> [referencia]`; associação usa `acervo --assunto <ref>`. No plugin, prefixar `${CLAUDE_PLUGIN_ROOT}/`. Nunca mover, apagar nem editar fichas na mão.
 
-Na pauta, o dono pode acrescentar regime e prazo no mesmo gesto: `--regime a-vista`, `--regime em-espera`, `--regime dormindo --ate AAAA-MM-DD` e/ou `--vence AAAA-MM-DD`. Sem opção, a entrada nasce normal e sem marcador. O núcleo grava o sufixo canônico na linha do item.
+`projeto <nome>` é atalho verbal de `assunto <ref>`. Se vier `assunto_inexistente`, oferecer nascimento: “não existe `<id_sugerido>` — criar agora?”, acrescentando o `tipo_sugerido` quando houver. Mostrar o ID e esperar confirmação do batismo antes de `assunto registrar`. Sem `id_sugerido`, pedir um ID, mostrá-lo e confirmar antes de chamar `registrar --id`; se o núcleo recusar, apresentar a recusa e pedir outro. Nunca criar por efeito colateral.
 
-O núcleo só aceita datas `AAAA-MM-DD`. Quando o dono disser “sexta”, “em setembro” ou outra data natural, traduzir e mostrar a data completa; só executar depois que ele confirmar. Se o prazo ficar antes da data de acordar, explicar que o item cobrará na abertura mesmo dormindo e pedir confirmação específica antes de repetir o comando com `--confirmado`. Nunca usar essa flag por hábito nem inferir confirmação.
+Assunto arquivado exige confirmação específica antes de repetir com `--confirmado`; escolher o destino não confirma o uso do arquivado. Na associação, se o despacho acontecer mas a nota falhar, avisar obrigatoriamente e reparar fielmente com os campos de `nota_perdida`: `assunto nota --data <data> --origem <origem> <id> -`, enviando `texto` pela entrada padrão, após conduzir a decisão com o dono.
 
-Quando o usuário pedir para decidir no visual ou gerar a página, executar `bin/neoprumo superficie despacho`, informar o caminho devolvido e orientar a abrir o arquivo HTML no navegador. No plugin, usar o mesmo prefixo `${CLAUDE_PLUGIN_ROOT}`.
+Na pauta, aceitar `--regime a-vista`, `--regime em-espera`, `--regime dormindo --ate AAAA-MM-DD` e/ou `--vence AAAA-MM-DD`. Sem opção, nasce normal. Traduzir data natural, mostrar a data completa e só executar após confirmação. Se o prazo anteceder o despertar, explicar que cobrará mesmo dormindo e pedir confirmação específica antes de `--confirmado`. Nunca usar a flag por hábito.
 
-Quando o usuário colar o bloco de respostas da página, passá-lo intacto pela entrada padrão de `bin/neoprumo superficie aplicar`. Nunca interpretar nem executar o bloco na mão. Apresentar o relatório devolvido pelo núcleo e trazer cada observação para a conversa, sem gravá-la no item ou no destino.
+Lixo exige confirmação explícita; silêncio, hesitação ou sugestão do agente não autorizam. Na superfície, o clique em lixo já confirma.
 
-Ao aplicar, distinguir a causa devolvida pelo núcleo. Página `envelhecida` por item que não está mais na Inbox ou por digital divergente: explicar que o retrato mudou e oferecer gerar a página de novo, nunca gerar sozinho. Se o problema disser “já há registro”, conferir o destino com o usuário e oferecer o despacho daquele item em conversa; não oferecer página nova para ele. Num caso misto, resolver primeiro em conversa os itens com registro e só depois oferecer página nova para o restante. Recusa estrutural: orientar recopiar o bloco da página. Falha de conferência ou recusa de domínio: apresentar `mensagem`, `problemas` e `acoes` do núcleo sem inventar outro remédio.
+Para decisão visual, executar `superficie despacho`, devolver o caminho e orientar a abrir o HTML. Ao receber o bloco, passá-lo intacto pela entrada padrão de `superficie aplicar`; nunca interpretar ou executar na mão. Apresentar relatório, problemas e observações.
 
-Lixo exige confirmação explícita do usuário na conversa, mesmo sendo recuperável. Sem essa confirmação, não executar. Não transformar silêncio, hesitação nem uma sugestão do agente em autorização.
+Página `envelhecida` por item que não está mais na Inbox ou por digital divergente: oferecer gerar outra, nunca gerar sozinho. Se o problema disser “já há registro”, conferir o destino com o dono e resolver o item na conversa. Em caso misto, resolver sobras primeiro. Recusa isolada de domínio do assunto: os outros itens já podem ter sido aplicados; apresentar o filho recusado e conduzir nascimento, desambiguação, nova referência ou confirmação conforme o envelope. Recusa estrutural: pedir para copiar novamente o bloco. Falha de conferência nunca fica muda.
 
-Na superfície, o clique em lixo já é a confirmação do usuário; aplicar o bloco não pede confirmação de novo.
-
-Depois de cada despacho, seguir para o próximo item até a Inbox acabar ou o usuário parar. Ser econômico: conteúdo, idade, pergunta; depois, confirmação concreta.
+Depois de cada despacho, seguir até a Inbox acabar ou o dono parar. Ser econômico: conteúdo, idade, pergunta; depois, confirmação concreta.

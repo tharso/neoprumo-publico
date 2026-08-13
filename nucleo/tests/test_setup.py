@@ -34,7 +34,8 @@ def test_setup_cria_workspace_canonico_em_diretorio_inexistente(
     assert (workspace / "Acervo").is_dir()
     assert (workspace / "Diario").is_dir()
     assert (workspace / "Pauta.md").read_text(encoding="utf-8") == "# Pauta\n"
-    assert (workspace / "Projetos.md").read_text(encoding="utf-8") == "# Projetos\n"
+    assert (workspace / "Assuntos").is_dir()
+    assert not (workspace / "Projetos.md").exists()
     identidade = json.loads(
         (workspace / ".neoprumo" / "workspace.json").read_text(encoding="utf-8")
     )

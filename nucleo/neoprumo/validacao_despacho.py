@@ -23,10 +23,14 @@ def nome_projeto_valido(nome):
     )
 
 
-def validar_regime_despacho(destino, regime, ate, vence, confirmado):
+def validar_regime_despacho(
+    destino, regime, ate, vence, confirmado, aceita_confirmacao=False
+):
     usou_campos = any((regime, ate, vence, confirmado))
     contraditorio = regime == "dormindo" and ate and vence and vence < ate
     if destino != "pauta" and usou_campos:
+        if confirmado and aceita_confirmacao and not any((regime, ate, vence)):
+            return None, None, None, []
         mensagem = (
             "Não há o que confirmar."
             if confirmado and not contraditorio
@@ -49,7 +53,7 @@ def validar_regime_despacho(destino, regime, ate, vence, confirmado):
         objeto = {"nome": nomes[regime], "ate": None}
     if contraditorio and not confirmado:
         return MENSAGEM_CONTRADICAO.format(vence=vence, ate=ate), None, None, []
-    if confirmado and not contraditorio:
+    if confirmado and not contraditorio and not aceita_confirmacao:
         return "Não há o que confirmar.", None, None, []
     acoes = [CIENCIA_CONTRADICAO] if contraditorio else []
     return None, objeto, vence, acoes

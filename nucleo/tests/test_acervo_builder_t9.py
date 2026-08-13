@@ -214,7 +214,7 @@ def test_builder_ignora_estado_de_projetos(tipo, tmp_path, executar_cli):
     workspace = criar_workspace(tmp_path, executar_cli, f"projetos-{tipo}")
     criar_item(workspace, "item.md")
     projetos = workspace / "Projetos.md"
-    projetos.unlink()
+    projetos.unlink(missing_ok=True)
     if tipo == "binario":
         projetos.write_bytes(b"\xff")
     elif tipo == "pasta":

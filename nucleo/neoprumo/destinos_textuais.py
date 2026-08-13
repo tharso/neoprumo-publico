@@ -14,10 +14,6 @@ AVISOS_RECRIACAO = {
         "O arquivo Pauta.md estava faltando e foi recriado. "
         "Rode doctor para conferir o workspace."
     ),
-    "Projetos.md": (
-        "O arquivo Projetos.md estava faltando e foi recriado. "
-        "Rode doctor para conferir o workspace."
-    ),
 }
 
 
@@ -28,7 +24,7 @@ def _motivo(erro):
 def fotografar_destinos(workspace):
     fotografias = {}
     problemas = []
-    for nome in ("Pauta.md", "Projetos.md"):
+    for nome in ("Pauta.md",):
         caminho = workspace / nome
         try:
             estado = caminho.lstat()
@@ -60,18 +56,11 @@ def marcador_em_destinos(destinos, identificador):
         rb"[ \t]*\xe2\x80\x94 inbox " + id_bytes
         + rb", despachado em \d{4}-\d{2}-\d{2}"
     )
-    projetos = re.compile(
-        rb"- \d{4}-\d{2}-\d{2} \(inbox " + id_bytes + rb"\): "
-    )
     encontrados = []
     foto_pauta = destinos.get("Pauta.md")
     if foto_pauta and foto_pauta["regular"]:
         if any(pauta.fullmatch(linha) for linha in foto_pauta["bytes"].split(b"\n")):
             encontrados.append("Pauta.md")
-    foto_projetos = destinos.get("Projetos.md")
-    if foto_projetos and foto_projetos["regular"]:
-        if any(projetos.match(linha) for linha in foto_projetos["bytes"].split(b"\n")):
-            encontrados.append("Projetos.md")
     return encontrados
 
 
@@ -90,15 +79,6 @@ def _formatar_pauta(conteudo, identificador, data, regime=None, vence=None):
     linhas = [f"- [ ] {primeira}{formatar_marcador(regime, vence)}\n"]
     linhas.extend(f"  {linha}\n" for linha in restantes)
     linhas.append(f"  — inbox {identificador}, despachado em {data}\n")
-    return "".join(linhas)
-
-
-def _formatar_nota_projeto(conteudo, identificador, data):
-    primeira, restantes = _separar_conteudo(conteudo)
-    if primeira is None:
-        return None
-    linhas = [f"- {data} (inbox {identificador}): {primeira}\n"]
-    linhas.extend(f"  {linha}\n" for linha in restantes)
     return "".join(linhas)
 
 
@@ -125,34 +105,6 @@ def gravar_atomico(caminho, conteudo):
 def _conteudo_com_apenso(conteudo, apenso):
     separador = b"" if not conteudo or conteudo.endswith(b"\n") else b"\n"
     return conteudo + separador + apenso.encode("utf-8")
-
-
-def _inserir_no_projeto(conteudo, nome, nota):
-    titulo = f"## {nome}"
-    linhas = conteudo.splitlines(keepends=True)
-    inicio = None
-    fim = len(conteudo)
-    posicao = 0
-    for linha in linhas:
-        texto = linha.rstrip("\r\n")
-        if inicio is None and texto == titulo:
-            inicio = posicao
-        elif inicio is not None and texto.startswith("## "):
-            fim = posicao
-            break
-        posicao += len(linha)
-    if inicio is None:
-        if not conteudo or conteudo.endswith("\n\n"):
-            separador = ""
-        elif conteudo.endswith("\n"):
-            separador = "\n"
-        else:
-            separador = "\n\n"
-        return conteudo + separador + titulo + "\n" + nota
-    antes, depois = conteudo[:fim], conteudo[fim:]
-    separador_antes = "" if antes.endswith("\n") else "\n"
-    separador_depois = "\n" if depois else ""
-    return antes + separador_antes + nota + separador_depois + depois
 
 
 def _preparar_arquivo_textual(caminho, cabecalho):
@@ -237,31 +189,3 @@ def despachar_pauta(item, conteudo, workspace, regime=None, vence=None,
         resultado["regime"] = regime
         resultado["vence"] = vence
     return 0, resultado
-
-
-def despachar_projeto(item, conteudo, nome, workspace):
-    nota = _formatar_nota_projeto(
-        conteudo, item.stem, datetime.now().strftime("%Y-%m-%d")
-    )
-    if nota is None:
-        return 1, recusa_item_vazio(item, workspace, "projeto")
-    projetos = workspace / "Projetos.md"
-    try:
-        anterior, acoes, existia = _preparar_arquivo_textual(projetos, "# Projetos\n")
-        novo_conteudo = _inserir_no_projeto(
-            anterior.decode("utf-8"), nome, nota
-        ).encode("utf-8")
-        resultado = _concluir(
-            item,
-            projetos,
-            novo_conteudo,
-            anterior,
-            existia,
-            acoes,
-            f"Anotado no projeto {nome}: {item.stem}.",
-            workspace,
-            "projeto",
-        )
-    except (OSError, UnicodeDecodeError) as erro:
-        return 1, recusa_falha(item, workspace, "projeto", erro)
-    return resultado if isinstance(resultado, tuple) else (0, resultado)

@@ -7,7 +7,7 @@ ESTRUTURA = {
     "Inbox": "diretorio",
     "Pauta.md": "arquivo",
     "Acervo": "diretorio",
-    "Projetos.md": "arquivo",
+    "Assuntos": "diretorio",
     "Diario": "diretorio",
     ".neoprumo/workspace.json": "arquivo",
 }
@@ -71,8 +71,7 @@ def inspecionar_estrutura(caminho):
 def _conteudo_inicial(nome):
     if nome == ".neoprumo/workspace.json":
         return json.dumps({"layout": 1}, ensure_ascii=False) + "\n"
-    titulo = "Pauta" if nome == "Pauta.md" else "Projetos"
-    return f"# {titulo}\n"
+    return "# Pauta\n"
 
 
 def _garantir_pai(item):

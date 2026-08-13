@@ -33,6 +33,14 @@ def _executar(resposta, workspace):
     resultado.update(
         {"entrada": resposta["item"], "observacao": resposta["observacao"]}
     )
+    estados_de_dominio = {
+        "assunto_inexistente", "ambiguo", "referencia_invalida",
+        "resolucao_incerta",
+    }
+    if resultado["status"] in estados_de_dominio:
+        dominio = resultado["status"]
+        resultado["status"] = "recusado"
+        resultado["problemas"].append(f"Estado do assunto: {dominio}.")
     return resultado
 
 
@@ -50,13 +58,13 @@ def _resumo(despachados, recusados, adiados):
     ) + "."
 
 
-def _agregar(workspace, resultados):
+def _agregar(workspace, resultados, problemas=None):
     despachados = sum(item["status"] == "despachado" for item in resultados)
     recusados = sum(item["status"] == "recusado" for item in resultados)
     adiados = sum(item["status"] == "adiado" for item in resultados)
     return {
         "status": "aplicado_com_recusas" if recusados else "aplicado",
-        "problemas": [
+        "problemas": (problemas or []) + [
             problema for item in resultados for problema in item["problemas"]
         ],
         "acoes": [acao for item in resultados for acao in item["acoes"]],
@@ -130,7 +138,7 @@ def operar_aplicacao(caminho=None, texto=None):
         resultado = _executar(resposta, workspace)
         resultados.append(resultado)
         relatorios.append(_relatorio(resultado, resposta))
-    agregado = _agregar(workspace, resultados)
+    agregado = _agregar(workspace, resultados, preflight.get("problemas"))
     return (1 if agregado["recusados"] else 0), agregado, relatorios
 
 
@@ -153,4 +161,6 @@ def aplicar_superficie(caminho=None, usar_json=False):
     for relatorio in relatorios:
         print(json.dumps(relatorio, ensure_ascii=False))
     print(resultado["mensagem"])
+    for problema in resultado["problemas"]:
+        print(f"Aviso: {problema}")
     return codigo

@@ -4,7 +4,7 @@ from pathlib import Path
 from .estrutura_workspace import problemas_da_estrutura, tem_marca_real
 
 
-SINAIS_FORTES = {".neoprumo", "Pauta.md", "Projetos.md"}
+SINAIS_FORTES = {".neoprumo", "Pauta.md", "Projetos.md", "Assuntos"}
 SINAIS_FRACOS = {"Inbox", "Acervo", "Diario"}
 CONTEXTOS = {"caminho_explicito", "ponteiro_ativo"}
 

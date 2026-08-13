@@ -24,7 +24,7 @@ def _recusar_sem_sinal(workspace, usar_json):
     acao = orientar_recuperacao(workspace, forcar=True)
     mensagem = (
         "Não há sinal suficiente de um workspace anterior. Com --forcar, seriam "
-        "criados Inbox, Pauta.md, Acervo, Projetos.md, Diario e .neoprumo."
+        "criados Inbox, Pauta.md, Acervo, Assuntos, Diario e .neoprumo."
     )
     resultado = _resultado(
         "recusado",

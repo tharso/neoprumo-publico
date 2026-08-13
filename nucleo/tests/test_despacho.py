@@ -151,13 +151,17 @@ def test_despacho_recusa_acervo_apontando_pra_fora_do_workspace(
     assert list(acervo_externo.iterdir()) == []
 
 
-def test_despacho_projeto_cria_secao_no_fim_sem_alterar_conteudo_existente(
+def test_despacho_projeto_usa_assunto_sem_alterar_documento_antigo(
     tmp_path, executar_cli
 ):
     workspace = criar_workspace(tmp_path, executar_cli, "projeto-novo")
     projetos = workspace / "Projetos.md"
     conteudo_anterior = "# Projetos\n\nTexto livre que não termina com quebra"
     projetos.write_text(conteudo_anterior, encoding="utf-8")
+    assert executar_cli(
+        "assunto", "registrar", "Casa Amarela", "--id", "casa-amarela",
+        "--workspace", workspace, "--json",
+    ).returncode == 0
     item = criar_item(
         workspace,
         "ideia.md",
@@ -167,19 +171,14 @@ def test_despacho_projeto_cria_secao_no_fim_sem_alterar_conteudo_existente(
     resultado = executar_cli("despacho", item.name, "projeto", "Casa Amarela")
 
     assert resultado.returncode == 0
-    assert resultado.stdout == "Anotado no projeto Casa Amarela: ideia.\n"
-    assert projetos.read_text(encoding="utf-8") == (
-        conteudo_anterior
-        + "\n\n## Casa Amarela\n"
-        f"- {hoje()} (inbox ideia): Rever a recepção\n"
-        "  Entrevistar três visitantes\n"
-        "  \n"
-        "  Fotografar a entrada\n"
-    )
+    assert "Casa Amarela" in resultado.stdout
+    assert projetos.read_text(encoding="utf-8") == conteudo_anterior
+    ficha = (workspace / "Assuntos" / "casa-amarela.md").read_text()
+    assert f"- {hoje()} (inbox ideia.md): Rever a recepção\n" in ficha
     assert not item.exists()
 
 
-def test_despacho_projeto_apensa_na_secao_exata_antes_da_proxima(
+def test_despacho_projeto_resolve_id_e_preserva_documento_antigo(
     tmp_path, executar_cli
 ):
     workspace = criar_workspace(tmp_path, executar_cli, "projeto-exato")
@@ -191,23 +190,28 @@ def test_despacho_projeto_apensa_na_secao_exata_antes_da_proxima(
         "## Casa 2\nstatus da casa 2\n",
         encoding="utf-8",
     )
+    anterior = projetos.read_text()
+    assert executar_cli(
+        "assunto", "registrar", "Casa", "--id", "casa",
+        "--workspace", workspace, "--json",
+    ).returncode == 0
     item = criar_item(workspace, "decisao.md", "Trocar as cortinas")
 
     resultado = executar_cli("despacho", item.stem, "projeto", "Casa")
 
     assert resultado.returncode == 0
-    assert projetos.read_text(encoding="utf-8") == (
-        "# Projetos\n\n"
-        "## Casa\nstatus da casa\n\n"
-        f"- {hoje()} (inbox decisao): Trocar as cortinas\n\n"
-        "## Casa Amarela\nstatus da casa amarela\n\n"
-        "## Casa 2\nstatus da casa 2\n"
-    )
+    assert projetos.read_text(encoding="utf-8") == anterior
+    assert "(inbox decisao.md): Trocar as cortinas" in (
+        workspace / "Assuntos" / "casa.md"
+    ).read_text()
 
 
-def test_despacho_projeto_recria_arquivo_ausente_e_avisa(tmp_path, executar_cli):
+def test_despacho_projeto_nao_recria_documento_antigo_ausente(tmp_path, executar_cli):
     workspace = criar_workspace(tmp_path, executar_cli, "projetos-recriado")
-    (workspace / "Projetos.md").unlink()
+    assert executar_cli(
+        "assunto", "registrar", "Varanda", "--id", "varanda",
+        "--workspace", workspace, "--json",
+    ).returncode == 0
     item = criar_item(workspace, "plano.md", "Primeira conversa")
 
     resultado = executar_cli(
@@ -216,29 +220,29 @@ def test_despacho_projeto_recria_arquivo_ausente_e_avisa(tmp_path, executar_cli)
 
     assert resultado.returncode == 0
     dados = json.loads(resultado.stdout)
-    assert dados["acoes"] == [
-        "O arquivo Projetos.md estava faltando e foi recriado. "
-        "Rode doctor para conferir o workspace."
-    ]
-    assert (workspace / "Projetos.md").read_text(encoding="utf-8") == (
-        "# Projetos\n\n## Varanda\n"
-        f"- {hoje()} (inbox plano): Primeira conversa\n"
-    )
+    assert dados["acoes"] == []
+    assert not (workspace / "Projetos.md").exists()
+    assert "(inbox plano.md): Primeira conversa" in (
+        workspace / "Assuntos" / "varanda.md"
+    ).read_text()
 
 
-def test_despacho_projeto_recusa_projetos_nao_utf8_sem_perder_item(
+def test_despacho_projeto_ignora_documento_antigo_nao_utf8(
     tmp_path, executar_cli
 ):
     workspace = criar_workspace(tmp_path, executar_cli, "projetos-binario")
     projetos = workspace / "Projetos.md"
     projetos.write_bytes(b"\xff\xfeprojetos")
+    assert executar_cli(
+        "assunto", "registrar", "Museu", "--id", "museu",
+        "--workspace", workspace, "--json",
+    ).returncode == 0
     item = criar_item(workspace, "nota.md", "Conteúdo legível")
 
     resultado = executar_cli("despacho", item.name, "projeto", "Museu")
 
-    assert resultado.returncode == 1
-    assert "ficou na inbox" in resultado.stderr
-    assert item.read_text(encoding="utf-8") == "Conteúdo legível"
+    assert resultado.returncode == 0
+    assert not item.exists()
     assert projetos.read_bytes() == b"\xff\xfeprojetos"
 
 
@@ -280,9 +284,12 @@ def test_despacho_textual_recusa_arquivo_nao_utf8_sem_alterar_nada(
     workspace = criar_workspace(tmp_path, executar_cli, f"binario-{destino}")
     item = criar_item(workspace, "imagem.jpg", b"\xff\xfe\x00\x80")
     pauta_anterior = (workspace / "Pauta.md").read_bytes()
-    projetos_anterior = (workspace / "Projetos.md").read_bytes()
     argumentos = ["despacho", item.name, destino]
     if destino == "projeto":
+        executar_cli(
+            "assunto", "registrar", "Museu", "--id", "museu",
+            "--workspace", workspace, "--json",
+        )
         argumentos.append("Museu")
 
     resultado = executar_cli(*argumentos)
@@ -293,7 +300,6 @@ def test_despacho_textual_recusa_arquivo_nao_utf8_sem_alterar_nada(
     assert "acervo" in resultado.stderr
     assert item.read_bytes() == b"\xff\xfe\x00\x80"
     assert (workspace / "Pauta.md").read_bytes() == pauta_anterior
-    assert (workspace / "Projetos.md").read_bytes() == projetos_anterior
 
 
 @pytest.mark.parametrize("destino", ["pauta", "projeto"])
@@ -304,6 +310,10 @@ def test_despacho_textual_recusa_item_sem_linha_preenchida(
     item = criar_item(workspace, "vazio.txt", "\n \t\n")
     argumentos = ["despacho", item.name, destino]
     if destino == "projeto":
+        executar_cli(
+            "assunto", "registrar", "Farol", "--id", "farol",
+            "--workspace", workspace, "--json",
+        )
         argumentos.append("Farol")
 
     resultado = executar_cli(*argumentos)
@@ -397,7 +407,7 @@ def test_despacho_recusa_projeto_sem_nome_sem_alterar_item(
     resultado = executar_cli("despacho", item.name, "projeto")
 
     assert resultado.returncode == 1
-    assert "nome do projeto" in resultado.stderr
+    assert "referência do assunto" in resultado.stderr
     assert item.read_text(encoding="utf-8") == "não mexer"
 
 

@@ -1,8 +1,9 @@
 import argparse
 import sys
-
 from .ativo import definir, e_workspace, informar_indisponivel, mostrar, resolver
 from .acervo import decidir_acervo
+from .cli_assunto import adicionar_parser as adicionar_parser_assunto
+from .cli_assunto import executar as executar_assunto
 from .captura import capturar
 from .configuracao_comandos import (
     adotar, avaliar_configuracao, defaults, gravar, mostrar_configuracao,
@@ -21,8 +22,6 @@ from .superficie_aplicar import aplicar_superficie
 from .superficie_acervo_builder import gerar_superficie_acervo
 from .superficie_builder import gerar_superficie
 from .workspace import configurar, diagnosticar
-
-
 def criar_parser():
     parser = argparse.ArgumentParser(prog="neoprumo")
     comandos = parser.add_subparsers(dest="comando", required=True)
@@ -41,13 +40,15 @@ def criar_parser():
     captura.add_argument("texto")
     captura.add_argument("--workspace", dest="caminho")
     captura.add_argument("--json", action="store_true", dest="usar_json")
+    adicionar_parser_assunto(comandos)
     despacho = comandos.add_parser(
         "despacho",
         help="decide o destino de um item da inbox",
     )
     despacho.add_argument("item")
     despacho.add_argument("destino")
-    despacho.add_argument("nome_do_projeto", nargs="?")
+    despacho.add_argument("referencia", nargs="?")
+    despacho.add_argument("--assunto")
     despacho.add_argument("--workspace", dest="caminho")
     despacho.add_argument("--json", action="store_true", dest="usar_json")
     despacho.add_argument(
@@ -154,8 +155,6 @@ def criar_parser():
     resolver_cfg.add_argument("--escolher")
     resolver_cfg.add_argument("--confirmada", action="store_true")
     return parser
-
-
 def _argumentos_comuns(parser, confirmacao=True):
     parser.add_argument("--workspace", dest="caminho")
     parser.add_argument("--json", action="store_true", dest="usar_json")
@@ -197,6 +196,8 @@ def executar(argumentos=None):
             caminho=opcoes.caminho,
             usar_json=opcoes.usar_json,
         )
+    if opcoes.comando == "assunto":
+        return executar_assunto(opcoes)
     if opcoes.comando == "regime":
         return executar_regime(
             trecho=opcoes.trecho,
@@ -220,7 +221,8 @@ def executar(argumentos=None):
         return despachar(
             opcoes.item,
             opcoes.destino,
-            nome_do_projeto=opcoes.nome_do_projeto,
+            referencia=opcoes.referencia,
+            assunto=opcoes.assunto,
             caminho=opcoes.caminho,
             usar_json=opcoes.usar_json,
             regime=opcoes.regime,

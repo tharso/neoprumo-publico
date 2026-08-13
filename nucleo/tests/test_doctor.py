@@ -17,7 +17,8 @@ def test_doctor_lista_ausencias_e_reparo_preserva_conteudo_do_usuario(
     workspace = tmp_path / "incompleto"
     assert executar_cli("setup", workspace).returncode == 0
     (workspace / "Acervo").rmdir()
-    (workspace / "Projetos.md").unlink()
+    (workspace / "Assuntos").rmdir()
+    (workspace / "Projetos.md").mkdir()
     captura = workspace / "Inbox" / "nome inesperado.txt"
     captura.write_text("conteúdo do usuário", encoding="utf-8")
     (workspace / "Pauta.md").write_text("# Minha pauta\n- preservar\n", encoding="utf-8")
@@ -26,17 +27,19 @@ def test_doctor_lista_ausencias_e_reparo_preserva_conteudo_do_usuario(
 
     assert diagnostico.returncode != 0
     assert "Acervo" in diagnostico.stderr
-    assert "Projetos.md" in diagnostico.stderr
+    assert "Assuntos" in diagnostico.stderr
+    assert "Projetos.md" not in diagnostico.stderr
 
     reparo = executar_cli("doctor", workspace, "--reparar")
 
     assert reparo.returncode == 0
     assert "reparado" in reparo.stdout.lower()
     assert "- Acervo recriado." in reparo.stdout
-    assert "- Projetos.md recriado." in reparo.stdout
+    assert "- Assuntos recriado." in reparo.stdout
     assert "Falta " not in reparo.stdout
     assert (workspace / "Acervo").is_dir()
-    assert (workspace / "Projetos.md").read_text(encoding="utf-8") == "# Projetos\n"
+    assert (workspace / "Assuntos").is_dir()
+    assert (workspace / "Projetos.md").is_dir()
     assert captura.read_text(encoding="utf-8") == "conteúdo do usuário"
     assert (workspace / "Pauta.md").read_text(encoding="utf-8") == (
         "# Minha pauta\n- preservar\n"

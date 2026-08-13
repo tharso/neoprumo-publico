@@ -147,28 +147,27 @@ def test_forcar_sem_readotar_e_erro_legivel_do_parser(tmp_path, executar_modulo)
 def test_falha_em_conteudo_deixa_marca_por_ultimo_e_orienta_repetir(
     tmp_path, executar_cli, monkeypatch
 ):
-    from neoprumo import estrutura_workspace
+    import neoprumo.workspace as modulo
 
     workspace = tmp_path / "parcial"
     workspace.mkdir()
     (workspace / "Pauta.md").write_text("sinal", encoding="utf-8")
-    original = estrutura_workspace._conteudo_inicial
+    original = modulo.criar_item_ausente
 
-    def falhar(nome):
-        if nome == "Projetos.md":
-            raise OSError("system text")
-        return original(nome)
+    def falhar(raiz, nome, tipo):
+        if nome == "Assuntos":
+            raise PermissionError("system text")
+        return original(raiz, nome, tipo)
 
-    monkeypatch.setattr(estrutura_workspace, "_conteudo_inicial", falhar)
+    monkeypatch.setattr(modulo, "criar_item_ausente", falhar)
 
     resultado = executar_cli("setup", "--readotar", workspace, "--json")
     dados = json.loads(resultado.stdout)
 
     assert resultado.returncode == 1
     assert dados["status"] == "com_problemas"
-    assert "Projetos.md foi criado, mas a gravação não terminou." in dados["acoes"]
     assert len(dados["acoes"]) == len(set(dados["acoes"]))
-    assert any("Projetos.md" in problema for problema in dados["problemas"])
+    assert any("Assuntos" in problema for problema in dados["problemas"])
     assert "setup --readotar" in dados["mensagem"]
     assert not (workspace / ".neoprumo").exists()
     assert not _configuracao().exists()
@@ -212,7 +211,7 @@ def test_marca_que_aparece_durante_falha_muda_rota_para_doctor(
     original = modulo.criar_item_ausente
 
     def falhar_depois_da_marca(raiz, nome, tipo):
-        if nome == "Projetos.md":
+        if nome == "Assuntos":
             (Path(raiz) / ".neoprumo").mkdir()
             raise PermissionError("system text")
         return original(raiz, nome, tipo)
