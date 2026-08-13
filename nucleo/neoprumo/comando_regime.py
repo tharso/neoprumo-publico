@@ -1,16 +1,15 @@
 import hashlib
-import stat
 from pathlib import Path
 
 from .ativo import e_workspace, informar_indisponivel, resolver
 from .destinos_textuais import gravar_atomico
+from .pauta_entradas import entradas as _entradas
+from .pauta_entradas import ler_pauta as _ler_pauta
+from .pauta_entradas import localizar as _localizar
 from .regimes import (
     PREFIXO_ABERTO,
-    analisar_linha,
     data_valida,
     formatar_marcador,
-    normalizar,
-    origem_da_linha,
 )
 from .resultado_regime import campos_nulos, emitir, envelope, recusar
 
@@ -23,65 +22,6 @@ CONTRADICAO = (
 
 def _falha(mensagem, workspace, **campos):
     return 1, recusar(mensagem, workspace, **campos)
-
-
-def _ler_pauta(workspace):
-    pauta = workspace / "Pauta.md"
-    try:
-        estado = pauta.lstat()
-        if not stat.S_ISREG(estado.st_mode):
-            raise OSError("Pauta.md não é um arquivo regular")
-        dados = pauta.read_bytes()
-        texto = dados.decode("utf-8")
-    except FileNotFoundError:
-        return None, None, "Pauta.md não existe."
-    except UnicodeDecodeError:
-        return None, None, "Pauta.md não contém texto UTF-8."
-    except OSError as erro:
-        return None, None, f"Pauta.md não pôde ser lida ({erro})."
-    return pauta, (dados, texto), None
-
-
-def _entradas(texto, concluida=False):
-    linhas = texto.splitlines(keepends=True)
-    entradas = []
-    for indice, linha_com_fim in enumerate(linhas):
-        linha = linha_com_fim.rstrip("\r\n")
-        leitura = analisar_linha(linha, concluida=concluida)
-        prefixos = ("- [x] ", "- [X] ") if concluida else (PREFIXO_ABERTO,)
-        if not linha.startswith(prefixos):
-            continue
-        origem = None
-        for seguinte in linhas[indice + 1 :]:
-            texto_seguinte = seguinte.rstrip("\r\n")
-            if texto_seguinte.startswith(("- [ ]", "- [x]", "- [X]")):
-                break
-            origem = origem_da_linha(texto_seguinte) or origem
-        entradas.append({**leitura, "indice": indice, "origem": origem})
-    return linhas, entradas
-
-
-def _localizar(texto, trecho, origem):
-    alvo = normalizar(trecho)
-    linhas, abertas = _entradas(texto)
-    candidatas = [e for e in abertas if alvo in normalizar(e["manchete"])]
-    if origem is not None:
-        candidatas = [e for e in candidatas if e["origem"] == origem]
-    if not candidatas:
-        _, concluidas = _entradas(texto, concluida=True)
-        concluidas = [e for e in concluidas if alvo in normalizar(e["manchete"])]
-        if origem is not None:
-            concluidas = [e for e in concluidas if e["origem"] == origem]
-        if concluidas:
-            return linhas, None, concluidas[0], []
-        return linhas, None, None, []
-    if len(candidatas) > 1:
-        exibidas = [
-            {"manchete": e["manchete"], "origem": e["origem"]}
-            for e in candidatas
-        ]
-        return linhas, None, None, exibidas
-    return linhas, candidatas[0], None, []
 
 
 def _validar_flags(regime, ate, vence, sem_prazo, confirmado, atual=None):

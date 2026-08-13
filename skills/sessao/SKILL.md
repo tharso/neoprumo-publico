@@ -26,7 +26,7 @@ No momento candidato, consulte o arquivo existente; a extensão decide sua condi
 
 - `primeira-sessao-do-dia`: toda abertura válida; `extensoes/primeira-sessao-do-dia.md`; default: abertura normal.
 - `pilha-grande`: toda oferta de despacho; `extensoes/pilha-grande.md`; default: despacho em conversa.
-- `ressurgimento`: cobrança feita e acervo com `total > 0`; `extensoes/ressurgimento.md`; default: nada.
+- `ressurgimento`: cobrança feita e (acervo com `total > 0` ou pauta com `em_espera > 0`); `extensoes/ressurgimento.md`; default: nada.
 - `fechar-o-dia`: usuário sinaliza encerrar; `extensoes/fechar-o-dia.md`; default: despedida simples.
 
 Prioridade: impedimentos > cobrança da Inbox > extensões > intenção; intenção explícita nunca espera. Extensões futuras podem delegar a novos comandos do núcleo conforme sua spec e autorização. O hook permanece somente-leitura.

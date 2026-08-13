@@ -1,6 +1,6 @@
 ---
 name: pauta
-description: Muda o regime ou o prazo de uma entrada existente da Pauta.
+description: Muda regime ou prazo e conduz a remoção recuperável de uma entrada existente da Pauta.
 ---
 
 # Pauta
@@ -14,3 +14,5 @@ O núcleo só recebe data civil em `AAAA-MM-DD`. Traduza expressões como “sex
 Se o resultado pretendido vencer antes de acordar, pare e explique a consequência: o prazo cobrará na abertura mesmo com o item dormindo. Só depois de uma confirmação específica repita com `--confirmado`. Não use a flag fora dessa contradição.
 
 Apresente a mensagem, os problemas, as ações e as candidatas devolvidas. Uma entrada concluída nunca é alterada; peça ao dono que a reabra ou escolha outra.
+
+Para jogar uma entrada aberta no lixo recuperável, peça confirmação explícita antes e só então execute `bin/neoprumo pauta "<trecho>" lixo`. No plugin, use o mesmo prefixo. Nunca edite `Pauta.md` na mão. Apresente a mensagem, os problemas e as candidatas do núcleo; em ambiguidade, use `--origem` apenas com a escolha do dono.

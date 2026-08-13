@@ -7,8 +7,9 @@ RAIZ = Path(__file__).parents[2]
 
 def test_rota_da_sessao_permanece_byte_a_byte_inalterada():
     conteudo = (RAIZ / "skills" / "sessao" / "SKILL.md").read_bytes()
+    # A spec da issue 52 amplia somente a condição do ressurgimento.
     assert hashlib.sha256(conteudo).hexdigest() == (
-        "f39f3df0344397aca855cd26e4d66f3b9e137d2a8ef7c95a93aa0ea2b8d895f6"
+        "062d5c8c2aa8762533c799cb4d1bbb5c1774621ad181db7f37eeeb8e7201a3ff"
     )
 
 

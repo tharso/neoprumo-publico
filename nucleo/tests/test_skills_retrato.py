@@ -9,8 +9,9 @@ SKILL = RAIZ / "skills/retrato/SKILL.md"
 
 def test_rota_e_skill_da_sessao_seguem_byte_a_byte():
     esperados = {
+        # A spec da issue 52 amplia somente a condição do ressurgimento.
         "skills/sessao/SKILL.md": (
-            "f39f3df0344397aca855cd26e4d66f3b9e137d2a8ef7c95a93aa0ea2b8d895f6"
+            "062d5c8c2aa8762533c799cb4d1bbb5c1774621ad181db7f37eeeb8e7201a3ff"
         ),
     }
     for relativo, esperado in esperados.items():

@@ -20,6 +20,8 @@ BASE = {
     "workspace",
     "candidato",
     "elegiveis",
+    "elegiveis_acervo",
+    "elegiveis_em_espera",
 }
 
 
@@ -111,9 +113,12 @@ def test_limiar_exato_exclui_seis_dias_e_inclui_sete_com_conteudo_integral(
 
     assert resultado["elegiveis"] == 1
     assert resultado["candidato"] == {
+        "origem": "acervo",
         "nome": "2026-08-03-235959-12.md",
+        "manchete": None,
         "idade": 7,
         "conteudo": conteudo,
+        "origem_entrada": None,
     }
     assert resultado["candidato"]["conteudo"].strip()
 
@@ -134,6 +139,8 @@ def test_so_itens_novos_retorna_sem_candidato(tmp_path, executar_cli):
         "workspace": str(workspace),
         "candidato": None,
         "elegiveis": 0,
+        "elegiveis_acervo": 0,
+        "elegiveis_em_espera": 0,
     }
 
 
@@ -435,6 +442,13 @@ def test_ressurgimento_e_somente_leitura_inclusive_configuracao_xdg(
 ):
     workspace = criar_workspace(tmp_path, executar_cli, "fotografia")
     criar_item(workspace, "2020-01-01-000000.md", "conteúdo")
+    (workspace / "Pauta.md").write_text(
+        "- [ ] Espera datada [em espera]\n"
+        "  detalhe preservado\n"
+        "  — inbox datada, despachado em 2020-01-01\n"
+        "- [ ] Espera manual [em espera]\n",
+        encoding="utf-8",
+    )
     configuracao = tmp_path / "configuracao-xdg"
     antes = fotografar(workspace, configuracao)
 

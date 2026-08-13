@@ -13,6 +13,7 @@ from .resultado_ressurgimento import (
     mensagem_do_candidato,
     recusa,
 )
+from .ressurgimento_pauta import enumerar_em_espera
 from .resultado_seed import recusar_workspace
 from .seed import _data_pelo_nome
 from .superficie_base import codificavel_utf8
@@ -107,9 +108,12 @@ def _enumerar(acervo, referencia):
                     continue
                 candidatos.append(
                     {
+                        "origem": "acervo",
                         "nome": entrada.name,
+                        "manchete": None,
                         "idade": idade,
                         "conteudo": conteudo,
+                        "origem_entrada": None,
                     }
                 )
     except OSError as erro:
@@ -137,20 +141,27 @@ def operar_ressurgimento(caminho, instante=None):
             "O Acervo não pôde ser usado. Rode doctor para conferir o workspace.",
         )
     referencia = _referencia_local(instante)
-    candidatos, problemas = _enumerar(acervo, referencia)
-    if candidatos is None:
+    candidatos_acervo, problemas = _enumerar(acervo, referencia)
+    if candidatos_acervo is None:
         return 1, recusa(
             workspace,
             problemas[0],
             "Confira as permissões do Acervo e tente novamente.",
             "O Acervo não pôde ser lido.",
         )
+    candidatos_pauta, problemas_pauta = enumerar_em_espera(workspace, referencia)
+    problemas.extend(problemas_pauta)
+    candidatos = candidatos_acervo + candidatos_pauta
+    total_acervo = len(candidatos_acervo)
+    total_pauta = len(candidatos_pauta)
     if not candidatos:
         return 0, envelope(
             "sem_candidato",
             "Nada a ressurgir por enquanto.",
             workspace,
             elegiveis=0,
+            elegiveis_acervo=0,
+            elegiveis_em_espera=0,
             problemas=problemas,
         )
     candidato = candidatos[referencia.date().toordinal() % len(candidatos)]
@@ -160,6 +171,8 @@ def operar_ressurgimento(caminho, instante=None):
         workspace,
         candidato=candidato,
         elegiveis=len(candidatos),
+        elegiveis_acervo=total_acervo,
+        elegiveis_em_espera=total_pauta,
         problemas=problemas,
     )
 

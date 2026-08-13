@@ -13,6 +13,7 @@ from .despacho import despachar
 from .ressurgimento import executar_ressurgimento
 from .readocao import readotar
 from .comando_regime import executar_regime
+from .comando_pauta import executar_pauta_lixo
 from .retrato import executar_retrato
 from .seed import executar_seed
 from .sonda import sondar
@@ -67,6 +68,14 @@ def criar_parser():
     regime.add_argument("--origem")
     regime.add_argument("--workspace", dest="caminho")
     regime.add_argument("--json", action="store_true", dest="usar_json")
+    pauta = comandos.add_parser(
+        "pauta", help="move uma entrada aberta da pauta pro lixo recuperável"
+    )
+    pauta.add_argument("trecho")
+    pauta.add_argument("decisao", choices=("lixo",))
+    pauta.add_argument("--origem")
+    pauta.add_argument("--workspace", dest="caminho")
+    pauta.add_argument("--json", action="store_true", dest="usar_json")
     acervo = comandos.add_parser(
         "acervo", help="decide o destino de um item do acervo"
     )
@@ -81,7 +90,7 @@ def criar_parser():
     retrato.add_argument("--workspace", dest="caminho")
     retrato.add_argument("--json", action="store_true", dest="usar_json")
     ressurgimento = comandos.add_parser(
-        "ressurgimento", help="reapresenta um item envelhecido do acervo"
+        "ressurgimento", help="reapresenta um item antigo do acervo ou da pauta"
     )
     ressurgimento.add_argument("--workspace", dest="caminho")
     ressurgimento.add_argument("--json", action="store_true", dest="usar_json")
@@ -196,6 +205,13 @@ def executar(argumentos=None):
             vence=opcoes.vence,
             sem_prazo=opcoes.sem_prazo,
             confirmado=opcoes.confirmado,
+            origem=opcoes.origem,
+            caminho=opcoes.caminho,
+            usar_json=opcoes.usar_json,
+        )
+    if opcoes.comando == "pauta":
+        return executar_pauta_lixo(
+            opcoes.trecho,
             origem=opcoes.origem,
             caminho=opcoes.caminho,
             usar_json=opcoes.usar_json,
