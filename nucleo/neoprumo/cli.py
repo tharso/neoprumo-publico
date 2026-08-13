@@ -2,8 +2,7 @@ import argparse
 import sys
 from .ativo import definir, e_workspace, informar_indisponivel, mostrar, resolver
 from .acervo import decidir_acervo
-from .cli_assunto import adicionar_parser as adicionar_parser_assunto
-from .cli_assunto import executar as executar_assunto
+from . import cli_grupos
 from .captura import capturar
 from .configuracao_comandos import (
     adotar, avaliar_configuracao, defaults, gravar, mostrar_configuracao,
@@ -40,7 +39,7 @@ def criar_parser():
     captura.add_argument("texto")
     captura.add_argument("--workspace", dest="caminho")
     captura.add_argument("--json", action="store_true", dest="usar_json")
-    adicionar_parser_assunto(comandos)
+    cli_grupos.adicionar_parsers(comandos)
     despacho = comandos.add_parser(
         "despacho",
         help="decide o destino de um item da inbox",
@@ -196,8 +195,8 @@ def executar(argumentos=None):
             caminho=opcoes.caminho,
             usar_json=opcoes.usar_json,
         )
-    if opcoes.comando == "assunto":
-        return executar_assunto(opcoes)
+    if opcoes.comando in cli_grupos.NOMES:
+        return cli_grupos.executar(opcoes)
     if opcoes.comando == "regime":
         return executar_regime(
             trecho=opcoes.trecho,

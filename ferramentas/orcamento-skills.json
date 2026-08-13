@@ -4,9 +4,11 @@
     "assunto": 401,
     "captura": 196,
     "despacho": 450,
+    "diario": 398,
     "pauta": 263,
     "retrato": 144,
     "sessao": 352,
+    "sessao/extensoes/fechar-o-dia": 105,
     "sessao/extensoes/pilha-grande": 99,
     "sessao/extensoes/primeira-sessao-do-dia": 822,
     "sessao/extensoes/ressurgimento": 459
