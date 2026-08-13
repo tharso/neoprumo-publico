@@ -10,6 +10,8 @@ Se `origem` for `acervo`, oferecer pauta, morrer ou deixa. Executar o gesto pelo
 
 Se `origem` for `em_espera`, oferecer: voltar ao normal → `bin/neoprumo regime "<trecho>" normal`; subir à vista → `bin/neoprumo regime "<trecho>" a-vista`; seguir esperando → não executar nada nem voltar ao tema nesta sessão; morreu → `bin/neoprumo pauta "<trecho>" lixo`, só após confirmação explícita. O trecho vem da manchete. Se houver ambiguidade, repetir com `--origem` usando `origem_entrada`, quando presente, ou a origem das `candidatas` devolvidas.
 
+Em qualquer dos dois gestos que apagam — “morrer” e “morreu” —, escolher o verbo não é confirmação: repetir o que sairá e esperar um “sim” próprio antes de executar.
+
 No plugin, usar o mesmo prefixo `${CLAUDE_PLUGIN_ROOT}/`. Entre o vislumbre e o gesto, se o item mudou ou sumiu, vale o que o núcleo encontrar pelo nome ou trecho, inclusive recusa; apresentar o resultado. Esse vão entre o vislumbre e o gesto não cria garantia nova.
 
 Com `elegiveis_acervo >= 5`, oferecer também, na mesma mensagem, abrir o garimpo pela skill `acervo`: `bin/neoprumo superficie acervo`. Gerar a página só com o sim; entradas em espera não têm página própria.

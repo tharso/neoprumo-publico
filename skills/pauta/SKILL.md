@@ -15,4 +15,4 @@ Se o resultado pretendido vencer antes de acordar, pare e explique a consequênc
 
 Apresente a mensagem, os problemas, as ações e as candidatas devolvidas. Uma entrada concluída nunca é alterada; peça ao dono que a reabra ou escolha outra.
 
-Para jogar uma entrada aberta no lixo recuperável, peça confirmação explícita antes e só então execute `bin/neoprumo pauta "<trecho>" lixo`. No plugin, use o mesmo prefixo. Nunca edite `Pauta.md` na mão. Apresente a mensagem, os problemas e as candidatas do núcleo; em ambiguidade, use `--origem` apenas com a escolha do dono.
+Para jogar uma entrada aberta no lixo recuperável, repita o que sairá da Pauta, peça um “sim” explícito e só então execute `bin/neoprumo pauta "<trecho>" lixo`; escolher o verbo não é confirmação. No plugin, use o mesmo prefixo. Nunca edite `Pauta.md` na mão. Apresente a mensagem, os problemas e as candidatas do núcleo; em ambiguidade, use `--origem` apenas com a escolha do dono.

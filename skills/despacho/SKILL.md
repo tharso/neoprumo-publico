@@ -9,7 +9,7 @@ Conduzir conversa curta, um item por vez. Localizar o workspace, ler o item fiel
 
 Executar somente pelo núcleo: `bin/neoprumo despacho <item> <destino> [referencia]`; associação usa `acervo --assunto <ref>`. No plugin, prefixar `${CLAUDE_PLUGIN_ROOT}/`. Nunca mover, apagar nem editar fichas na mão.
 
-`projeto <nome>` é atalho verbal de `assunto <ref>`. Se vier `assunto_inexistente`, oferecer nascimento: “não existe `<id_sugerido>` — criar agora?”, acrescentando o `tipo_sugerido` quando houver. Mostrar o ID e esperar confirmação do batismo antes de `assunto registrar`. Sem `id_sugerido`, pedir um ID, mostrá-lo e confirmar antes de chamar `registrar --id`; se o núcleo recusar, apresentar a recusa e pedir outro. Nunca criar por efeito colateral.
+`projeto <nome>` é atalho verbal de `assunto <ref>`: dito “projeto”, passar `projeto` com o nome como o dono falou. Derivar o ID por conta própria e chamar `assunto` no lugar cala o `tipo_sugerido`. Se vier `assunto_inexistente`, oferecer nascimento: “não existe `<id_sugerido>` — criar agora?”, acrescentando o `tipo_sugerido` quando houver. Mostrar o ID e esperar confirmação do batismo antes de `assunto registrar`. Sem `id_sugerido`, pedir um ID, mostrá-lo e confirmar antes de chamar `registrar --id`; se o núcleo recusar, apresentar a recusa e pedir outro. Nunca criar por efeito colateral.
 
 Assunto arquivado exige confirmação específica antes de repetir com `--confirmado`; escolher o destino não confirma o uso do arquivado. Na associação, se o despacho acontecer mas a nota falhar, avisar obrigatoriamente e reparar fielmente com os campos de `nota_perdida`: `assunto nota --data <data> --origem <origem> <id> -`, enviando `texto` pela entrada padrão, após conduzir a decisão com o dono.
 

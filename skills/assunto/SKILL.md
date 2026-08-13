@@ -17,7 +17,7 @@ Se o envelope não trouxer `id_sugerido`, pedir um ID, mostrá-lo e confirmar. E
 
 - Consultar: `assunto mostrar <ref>` ou `assunto listar [--todos]`.
 - Anotar: `assunto nota <ref> <texto|->`. Usar `-` para multilinha. `--data` e `--origem` só quando o dono mandar ou durante reparo/migração consciente.
-- Arquivar: repetir o que ficará arquivado e pedir um “sim” explícito antes de `assunto arquivar <ref>`; escolher o verbo não é confirmação.
+- Arquivar: repetir o que ficará arquivado — estado e notas vêm do envelope de `mostrar`, nunca da linha humana — e pedir um “sim” explícito antes de `assunto arquivar <ref>`; escolher o verbo não é confirmação.
 - Reativar: `assunto reativar <ref>` após confirmar qual ficha foi resolvida.
 
 Referência ambígua: mostrar candidatas e repetir com ID. Inexistente: oferecer nascimento. Resolução incerta ou ficha quebrada: apresentar os problemas; não declarar unicidade nem contornar o núcleo. Anotação direta em arquivado é permitida por ser gesto consciente do dono: explicitar o estado antes de executar.
