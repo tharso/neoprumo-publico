@@ -9,7 +9,9 @@ Conduzir na ordem: colher → propor → confirmar → gravar. Usar sempre o nú
 
 ## Colheita e proposta
 
-Executar `diario colher --json` sem autorização, pois é leitura pura. Somar os fatos colhidos ao que a conversa prova. Quando o resultado parecer magro, mostrar as `limitacoes`: silêncio do disco não significa silêncio do dia. Tratar `problemas` como aviso de saúde, sem apagar fatos saudáveis.
+Executar `diario colher --json` sem autorização, pois é leitura pura. Com `total == 0`, encerrar sem diário: dizer que o disco não registrou nada hoje, o que não é o mesmo que o dia ter sido vazio; não propor texto, não recitar limitações e não perguntar o que aconteceu. Vale igual quando o pedido chega direto aqui, sem passar pela rota da sessão.
+
+Havendo fatos, somar os colhidos ao que a conversa prova. Quando o resultado parecer magro, mostrar as `limitacoes`: silêncio do disco não significa silêncio do dia. Tratar `problemas` como aviso de saúde, sem apagar fatos saudáveis.
 
 Escrever uma narrativa única por acontecimento: quando o mesmo item aparecer em famílias diferentes, reuni-lo em vez de repeti-lo. Usar somente fatos com origem visível; pedir ao dono o que faltar. Sob compactação, incluir no próprio texto uma frase dizendo que parte da conversa pode ter ficado fora.
 

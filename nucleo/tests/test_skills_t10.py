@@ -7,10 +7,12 @@ RAIZ = Path(__file__).parents[2]
 
 def test_arquivos_intocaveis_permanecem_byte_a_byte_inalterados():
     esperados = {
-        # A spec da issue 52 amplia somente a condição desta rota.
+        # Lacre de escopo, não proibição: abre só por revisão consciente, com o
+        # hash recongelado no merge e a razão no log de decisões do projeto.
+        # Última abertura: 13/08, o gate de exclusão do acervo (#57).
         "skills/sessao/SKILL.md": "062d5c8c2aa8762533c799cb4d1bbb5c1774621ad181db7f37eeeb8e7201a3ff",
         "skills/sessao/extensoes/pilha-grande.md": "47bc5cacdd597f01f6af82f726fb376e70680fcc3aa7e7a9734950c06a541529",
-        "skills/acervo/SKILL.md": "bf587b578268c35e5382fef51a2fad61ef7c12c11de6c777ed13a1476afde159",
+        "skills/acervo/SKILL.md": "b96f37af9c0656e3a0fde832bdbb97fee4ce0946e041010f009cc974e0e0b996",
         "skills/captura/SKILL.md": "c2d45ec8ade86645a00a80d1418b0750147569340913a5a90ed1ebb30ad4f55e",
         "hooks/hooks.json": "d3a40b1747afd393f38f6db4714702cd16d0e9301beffdbd8adf69e4639a3ed3",
     }

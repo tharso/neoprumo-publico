@@ -11,7 +11,7 @@ Na página, executar somente pelo núcleo: `bin/neoprumo superficie acervo`. No 
 
 Passar o bloco colado INTACTO pela entrada padrão de `bin/neoprumo superficie aplicar`. Nunca interpretar o bloco, chamar os destinos por conta própria nem mover arquivos na mão. Apresentar o relatório do núcleo e trazer cada observação para a conversa; não gravá-la.
 
-Na conversa, executar cada decisão pelo unitário `bin/neoprumo acervo <item> <pauta|lixo>`, com o mesmo prefixo do plugin quando necessário. Excluir exige confirmação explícita antes do comando; na página, o clique já confirmou. “Atacar agora” ditado significa executar `acervo <item> pauta` e abrir o trabalho somente depois do status `incluido`.
+Na conversa, executar cada decisão pelo unitário `bin/neoprumo acervo <item> <pauta|lixo>`, com o mesmo prefixo do plugin quando necessário. Para excluir, repetir o que sairá do Acervo e pedir um “sim” explícito antes do comando; escolher o verbo não é confirmação. Na página, o clique já confirmou. “Atacar agora” ditado significa executar `acervo <item> pauta` e abrir o trabalho somente depois do status `incluido`.
 
 Ao aplicar uma página:
 

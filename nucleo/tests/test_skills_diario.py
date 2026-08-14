@@ -23,6 +23,20 @@ def test_extensao_so_oferece_diario_quando_ha_fato():
     assert "uma vez por sessão" in texto
 
 
+def test_skill_repete_a_regra_do_dia_sem_fatos():
+    # A regra mora na extensão, mas "acabei por hoje" casa a descrição desta
+    # skill e dispara sem passar pela rota da sessão: sozinha na extensão, ela
+    # nunca chega a ser aplicada (#57, célula (b) do smoke).
+    texto = ler("skills/diario/SKILL.md")
+    assert "total == 0" in texto
+    posicao = texto.index("total == 0")
+    assert posicao < texto.index("Mostrar a proposta COMPLETA")
+    regra = texto[posicao : texto.index("\n", posicao)]
+    assert "não propor texto" in regra
+    assert "não perguntar" in regra
+    assert "sem passar pela rota da sessão" in regra
+
+
 def test_skill_confirma_texto_inteiro_antes_de_gravar():
     texto = ler("skills/diario/SKILL.md")
     assert texto.index("Mostrar a proposta COMPLETA") < texto.index("Após o “sim”")
