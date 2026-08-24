@@ -2,9 +2,7 @@
 
 NeoPrumo é o codinome de desenvolvimento da nova geração do Prumo, sistema de organização pessoal com um compromisso central: **nada se perde**. No lançamento, o produto assume o nome Prumo.
 
-Este repositório é o **espelho público do produto**, sob licença MIT. O desenvolvimento acontece num repositório privado; cada merge é publicado aqui num commit único — por isso não há histórico de desenvolvimento nem issues neste espelho.
-
-O projeto está em construção e ainda não teve release.
+Este repositório é o **canal público do produto**, sob licença MIT. O desenvolvimento acontece em outro repositório; cada versão chega aqui num commit único.
 
 ## O que tem aqui
 
@@ -12,25 +10,42 @@ O projeto está em construção e ainda não teve release.
 - `skills/` — skills de agente no padrão aberto (agentskills.io)
 - `hooks/`, `bin/`, `.claude-plugin/` — ativação por sessão e empacotamento do plugin
 
-## Experimentar (instalação local)
+## Instalar
 
 Requisito: Python 3.10 ou mais recente acessível como `python3` no `PATH`. Com um Python antigo, a sessão ainda abre e apresenta uma mensagem legível com a correção.
 
 No Claude Code:
 
 ```sh
-claude plugin marketplace add <caminho-deste-clone>
-claude plugin install neoprumo@neoprumo-dev
+claude plugin marketplace add tharso/neoprumo-publico
+claude plugin install neoprumo@neoprumo
 ```
 
 No Codex:
 
 ```sh
-codex plugin marketplace add <caminho-deste-clone>
-codex plugin add neoprumo --marketplace neoprumo-dev
+codex plugin marketplace add tharso/neoprumo-publico
+codex plugin add neoprumo@neoprumo
 ```
 
 No Codex, hooks de plugin exigem confiança concedida na primeira sessão interativa de terminal (`Hooks need review`); em execução não interativa, hook não confiado é pulado em silêncio.
+
+No Claude Code, marketplaces de terceiros vêm com atualização automática desligada. Depois de instalar, abra `/plugin`, entre em **Marketplaces**, selecione `neoprumo` e ligue o auto-update.
+
+## Conferir atualizações manualmente
+
+No Claude Code:
+
+```sh
+claude plugin update neoprumo@neoprumo
+```
+
+No Codex, são dois passos — atualizar o catálogo e reinstalar o plugin:
+
+```sh
+codex plugin marketplace upgrade neoprumo
+codex plugin add neoprumo@neoprumo
+```
 
 ## Testes
 

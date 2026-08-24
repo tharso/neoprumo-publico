@@ -1,5 +1,9 @@
 {
   "name": "neoprumo",
-  "version": "0.1.0",
-  "description": "Sistema de organização pessoal que garante que nada se perde; NeoPrumo é o codinome de desenvolvimento."
+  "version": "0.2.0",
+  "description": "Sistema de organização pessoal que garante que nada se perde; NeoPrumo é o codinome de desenvolvimento.",
+  "author": {
+    "name": "Tharso Vieira"
+  },
+  "license": "MIT"
 }

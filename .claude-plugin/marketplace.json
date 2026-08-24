@@ -1,5 +1,5 @@
 {
-  "name": "neoprumo-dev",
+  "name": "neoprumo",
   "owner": {
     "name": "Tharso Vieira"
   },
@@ -7,7 +7,12 @@
     {
       "name": "neoprumo",
       "source": "./",
-      "description": "Esqueleto instalável de desenvolvimento do NeoPrumo."
+      "description": "Sistema de organização pessoal que garante que nada se perde; NeoPrumo é o codinome de desenvolvimento.",
+      "version": "0.2.0",
+      "author": {
+        "name": "Tharso Vieira"
+      },
+      "license": "MIT"
     }
   ]
 }

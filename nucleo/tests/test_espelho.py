@@ -49,7 +49,12 @@ def origem(tmp_path):
     (raiz / "hooks" / "hooks.json").write_text("{}\n", encoding="utf-8")
     (raiz / "bin" / "neoprumo").write_text("#!/bin/sh\n", encoding="utf-8")
     (raiz / ".claude-plugin" / "plugin.json").write_text("{}\n", encoding="utf-8")
-    for nome in ("__init__.py", "catraca_skills.py", "orcamento-skills.json"):
+    for nome in (
+        "__init__.py",
+        "catraca_skills.py",
+        "catraca_versao.py",
+        "orcamento-skills.json",
+    ):
         (raiz / "ferramentas" / nome).write_text("\n", encoding="utf-8")
     (raiz / "pyproject.toml").write_text("[project]\n", encoding="utf-8")
     (raiz / "README.md").write_text("# leia\n", encoding="utf-8")

@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from conftest import RAIZ_PROJETO
+from neoprumo import __version__
 
 
 INICIALIZADOR = RAIZ_PROJETO / "bin" / "neoprumo"
@@ -47,7 +48,7 @@ def test_launcher_funciona_fora_da_raiz_do_plugin(tmp_path):
 
     assert resultado.returncode == 0
     assert resultado.stderr == ""
-    assert resultado.stdout.startswith("NeoPrumo 0.1.0 ativo — Python ")
+    assert resultado.stdout.startswith(f"NeoPrumo {__version__} ativo — Python ")
 
 
 def test_launcher_hook_funciona_fora_da_raiz_do_plugin(tmp_path):
@@ -57,7 +58,9 @@ def test_launcher_hook_funciona_fora_da_raiz_do_plugin(tmp_path):
     assert resultado.stderr == ""
     envelope = json.loads(resultado.stdout)
     assert envelope["hookSpecificOutput"]["hookEventName"] == "SessionStart"
-    assert "NeoPrumo 0.1.0 ativo" in envelope["hookSpecificOutput"]["additionalContext"]
+    assert f"NeoPrumo {__version__} ativo" in (
+        envelope["hookSpecificOutput"]["additionalContext"]
+    )
 
 
 @pytest.mark.skipif(

@@ -5,6 +5,7 @@ from . import __version__
 from .__main__ import envelope_do_hook
 from .ativo import e_workspace, resolver
 from .orientacao import orientar, orientar_sem_ativo
+from .manutencao import aviso_de_manutencao
 from .resultado_seed import linhas_humanas
 from .seed import resumir
 
@@ -35,6 +36,9 @@ def sondar(usar_hook=False):
                 "\nO estado do workspace não pôde ser preparado nesta abertura. "
                 "A sessão pode continuar."
             )
+        aviso = aviso_de_manutencao()
+        if aviso is not None:
+            linha += "\n" + aviso
         print(json.dumps(envelope_do_hook(linha), ensure_ascii=False))
     else:
         print(linha)
