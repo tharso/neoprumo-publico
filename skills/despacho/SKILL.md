@@ -7,6 +7,8 @@ description: Decide itens da Inbox: pauta, acervo, assunto/projeto ou lixo, incl
 
 Conduzir conversa curta, um item por vez. Localizar o workspace, ler o item fielmente e mostrar conteúdo e idade. Perguntar: pauta, acervo, assunto/projeto ou lixo. “Guarda isso pro X” significa acervo associado ao assunto X.
 
+Com 5 ou mais itens na Inbox, antes do primeiro item, oferecer a página: “são N itens — quero gerar a página de despacho?”. Pedido que já traz a forma é atendido direto, sem a oferta. A escolha vale até a Inbox acabar ou o dono parar: sem repetir a oferta no meio, e trocar de forma só se o dono pedir. No pedido de despacho seguinte, a oferta volta.
+
 Executar somente pelo núcleo: `bin/neoprumo despacho <item> <destino> [referencia]`; associação usa `acervo --assunto <ref>`. No plugin, prefixar `${CLAUDE_PLUGIN_ROOT}/`. Nunca mover, apagar nem editar fichas na mão.
 
 `projeto <nome>` é atalho verbal de `assunto <ref>`: dito “projeto”, passar `projeto` com o nome como o dono falou. Derivar o ID por conta própria e chamar `assunto` no lugar cala o `tipo_sugerido`. Se vier `assunto_inexistente`, oferecer nascimento: “não existe `<id_sugerido>` — criar agora?”, acrescentando o `tipo_sugerido` quando houver. Mostrar o ID e esperar confirmação do batismo antes de `assunto registrar`. Sem `id_sugerido`, pedir um ID, mostrá-lo e confirmar antes de chamar `registrar --id`; se o núcleo recusar, apresentar a recusa e pedir outro. Nunca criar por efeito colateral.

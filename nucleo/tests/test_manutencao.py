@@ -49,8 +49,13 @@ def test_limiar_invalido_cala_sem_sinal_de_falha():
     ) is None
 
 
-def test_variavel_nao_vazia_silencia_e_vazia_mantem_ativo():
+def test_variavel_nao_vazia_silencia_e_vazia_mantem_ativo(monkeypatch):
+    from neoprumo import manutencao
+
     nome = "NEOPRUMO_SEM_AVISO_DE_IDADE"
+    # Data fixa no módulo, argumento omitido: o caminho default segue
+    # exercitado sem depender da idade real do pacote.
+    monkeypatch.setattr(manutencao, "__data_versao__", "2026-08-24")
 
     assert aviso_de_manutencao(
         hoje=date(2026, 9, 1), ambiente={nome: "1"}
@@ -61,7 +66,10 @@ def test_variavel_nao_vazia_silencia_e_vazia_mantem_ativo():
 
 
 def test_texto_declara_so_manutencao_e_repete_os_comandos_do_onboarding():
-    aviso = aviso_de_manutencao(hoje=date(2026, 9, 1), ambiente={})
+    # Data fixa como nos irmãos: o texto é o contrato, não a idade do pacote.
+    aviso = aviso_de_manutencao(
+        hoje=date(2026, 9, 1), data_versao="2026-08-24", ambiente={}
+    )
     readme = (RAIZ_PROJETO / "README.md").read_text(encoding="utf-8")
     comandos = (
         "claude plugin update neoprumo@neoprumo",
