@@ -28,6 +28,8 @@ codex plugin marketplace add tharso/neoprumo-publico
 codex plugin add neoprumo@neoprumo
 ```
 
+O plugin ativa um hook de abertura que injeta o estado do workspace em toda sessão dos hosts onde estiver habilitado. A injeção inclui as contagens da Inbox e da Pauta e as manchetes do regime “à vista”.
+
 No Codex, hooks de plugin exigem confiança concedida na primeira sessão interativa de terminal (`Hooks need review`); em execução não interativa, hook não confiado é pulado em silêncio.
 
 No Claude Code, marketplaces de terceiros vêm com atualização automática desligada. Depois de instalar, abra `/plugin`, entre em **Marketplaces**, selecione `neoprumo` e ligue o auto-update.
@@ -46,6 +48,19 @@ No Codex, são dois passos — atualizar o catálogo e reinstalar o plugin:
 codex plugin marketplace upgrade neoprumo
 codex plugin add neoprumo@neoprumo
 ```
+
+## Os gestos
+
+O NeoPrumo se organiza em oito gestos que você pode pedir em linguagem comum:
+
+- `briefing` — apresenta o panorama do dia e o que pede atenção.
+- `fim` — fecha o dia pelo diário com o que realmente aconteceu.
+- `captura` — guarda na Inbox algo que você quer lembrar, sem mudar suas palavras.
+- `despacho` — ajuda a decidir o destino de cada item da Inbox.
+- `pauta` — muda a situação ou o prazo de uma pendência.
+- `acervo` — abre e garimpa o que ficou guardado.
+- `assunto` — reúne e cuida da memória de um tema ou projeto.
+- `sessao` — abre a conversa mostrando o estado atual e o que pede atenção.
 
 ## Testes
 

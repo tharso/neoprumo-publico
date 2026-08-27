@@ -12,7 +12,7 @@ def ler(relativo):
 def test_rota_da_sessao_permanece_byte_a_byte_intacta():
     dados = (RAIZ / "skills/sessao/SKILL.md").read_bytes()
     assert hashlib.sha256(dados).hexdigest() == (
-        "a238ee04776515152d2238042b9e0b8114b565e966328b3a44687d7a38afcb0a"
+        "029ac34f443aebed262b4e332505736dce0e78205ac3ba342cd1fb27abb15260"
     )
 
 

@@ -24,7 +24,7 @@ O lembrete tem a prioridade mais baixa. Sem intenção explícita, acrescente-o 
 
 Nunca edite arquivos. Após autorização explícita, delegue escrita somente a `bin/neoprumo despacho` ou `bin/neoprumo doctor --reparar`; reparo é tentativa e pode deixar problemas. No plugin, prefixe `${CLAUDE_PLUGIN_ROOT}/`.
 
-Sob pedido de ajuda, explique o ciclo captura → Inbox → despacho → pauta/acervo/projeto/lixo. Ofereça execução apenas dos gestos existentes: captura e despacho.
+Sob pedido de ajuda, siga a skill `menu`.
 
 ## Extensões
 

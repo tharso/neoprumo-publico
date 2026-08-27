@@ -10,7 +10,7 @@ def test_arquivos_intocaveis_permanecem_byte_a_byte_inalterados():
         # Lacre de escopo, não proibição: abre só por revisão consciente, com o
         # hash recongelado no merge e a razão no log de decisões do projeto.
         # Última abertura: 24/08, o lembrete diário de manutenção (#18).
-        "skills/sessao/SKILL.md": "a238ee04776515152d2238042b9e0b8114b565e966328b3a44687d7a38afcb0a",
+        "skills/sessao/SKILL.md": "029ac34f443aebed262b4e332505736dce0e78205ac3ba342cd1fb27abb15260",
         "skills/sessao/extensoes/pilha-grande.md": "47bc5cacdd597f01f6af82f726fb376e70680fcc3aa7e7a9734950c06a541529",
         "skills/acervo/SKILL.md": "b96f37af9c0656e3a0fde832bdbb97fee4ce0946e041010f009cc974e0e0b996",
         "skills/captura/SKILL.md": "c2d45ec8ade86645a00a80d1418b0750147569340913a5a90ed1ebb30ad4f55e",

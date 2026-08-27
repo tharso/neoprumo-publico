@@ -11,7 +11,7 @@ def test_rota_e_skill_da_sessao_seguem_byte_a_byte():
     esperados = {
         # A spec da issue 52 amplia somente a condição do ressurgimento.
         "skills/sessao/SKILL.md": (
-            "a238ee04776515152d2238042b9e0b8114b565e966328b3a44687d7a38afcb0a"
+            "029ac34f443aebed262b4e332505736dce0e78205ac3ba342cd1fb27abb15260"
         ),
     }
     for relativo, esperado in esperados.items():

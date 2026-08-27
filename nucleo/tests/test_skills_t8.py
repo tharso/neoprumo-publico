@@ -9,7 +9,7 @@ def test_rota_da_sessao_permanece_byte_a_byte_inalterada():
     conteudo = (RAIZ / "skills" / "sessao" / "SKILL.md").read_bytes()
     # A spec da issue 52 amplia somente a condição do ressurgimento.
     assert hashlib.sha256(conteudo).hexdigest() == (
-        "a238ee04776515152d2238042b9e0b8114b565e966328b3a44687d7a38afcb0a"
+        "029ac34f443aebed262b4e332505736dce0e78205ac3ba342cd1fb27abb15260"
     )
 
 
