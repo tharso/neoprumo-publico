@@ -1,9 +1,9 @@
 ---
-name: diario
+name: fim
 description: Fecha o dia pelo diário quando o dono pede para encerrar ou registrar o dia; colhe fatos, propõe o texto inteiro, confirma e grava somente o dia civil atual.
 ---
 
-# Diário
+# Fim
 
 Conduzir na ordem: colher → propor → confirmar → gravar. Usar sempre o núcleo (`bin/neoprumo diario`; no plugin, prefixar `${CLAUDE_PLUGIN_ROOT}/`). O diário registra o que aconteceu; não altera Inbox, Pauta, Acervo ou Assuntos.
 

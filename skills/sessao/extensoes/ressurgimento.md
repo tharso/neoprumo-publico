@@ -16,4 +16,4 @@ No plugin, usar o mesmo prefixo `${CLAUDE_PLUGIN_ROOT}/`. Entre o vislumbre e o 
 
 Com `elegiveis_acervo >= 5`, oferecer também, na mesma mensagem, abrir o garimpo pela skill `acervo`: `bin/neoprumo superficie acervo`. Gerar a página só com o sim; entradas em espera não têm página própria.
 
-O ressurgimento fica fora da abertura e do retrato. Contagens não repetem conteúdo, e entrada em espera com prazo vencido não chega aqui. Nunca sequestrar nem postergar uma intenção explícita, conforme a regra 6 da rota. Há no máximo um ressurgimento por sessão; outra sessão no mesmo dia pode repetir o candidato, custo aceito do funcionamento sem estado.
+O ressurgimento fica fora da abertura e do briefing. Contagens não repetem conteúdo, e entrada em espera com prazo vencido não chega aqui. Nunca sequestrar nem postergar uma intenção explícita, conforme a regra 6 da rota. Há no máximo um ressurgimento por sessão; outra sessão no mesmo dia pode repetir o candidato, custo aceito do funcionamento sem estado.

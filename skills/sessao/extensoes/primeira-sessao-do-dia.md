@@ -11,22 +11,22 @@ As quatro condições abaixo são independentes e não alteram os limiares 3/5/7
 3. Se `pauta.acordaram_hoje > 0`, anunciar quem acordou hoje, mesmo quando `pauta.regimes.a_vista == 0`.
 4. Se `pauta.prazos.vencidos > 0`, cobrar os prazos estourados junto da cobrança da Inbox, mesmo sem à vista e inclusive quando o item continua marcado como dormindo.
 
-Se a seção "Retrato do dia" apresentou o panorama NESTA abertura: não repetir o pódio (condição 1), o anúncio de acordou (condição 3) nem re-apresentar os prazos — a cobrança acionável dos vencidos (condição 4) acontece UMA vez, dentro do retrato. A condição 2 (teto macio — cobrar a redução com `a_vista > 5`) continua desta seção, com ou sem retrato. Sem retrato nesta abertura, as quatro condições valem integrais.
+Se a seção "Briefing" apresentou o panorama NESTA abertura: não repetir o pódio (condição 1), o anúncio de acordou (condição 3) nem re-apresentar os prazos — a cobrança acionável dos vencidos (condição 4) acontece UMA vez, dentro do briefing. A condição 2 (teto macio — cobrar a redução com `a_vista > 5`) continua desta seção, com ou sem briefing. Sem briefing nesta abertura, as quatro condições valem integrais.
 
-## Retrato do dia
+## Briefing
 
 Na abertura válida, executar `bin/neoprumo retrato --json`; no plugin, usar `${CLAUDE_PLUGIN_ROOT}/bin/neoprumo retrato --json`.
 
-- `primeiro_do_dia` verdadeiro: apresentar o retrato fora da abertura de duas frases da rota.
-- `primeiro_do_dia` falso: seguir sem retrato.
-- Indisponibilidade: seguir sem retrato; a rota já orienta o workspace.
+- `primeiro_do_dia` verdadeiro: apresentar o briefing fora da abertura de duas frases da rota.
+- `primeiro_do_dia` falso: seguir sem briefing.
+- Indisponibilidade: seguir sem briefing; a rota já orienta o workspace.
 - `carimbo_falhou`: apresentar normalmente e repassar cada `acao` do envelope. Ramificar por `status`, nunca só pelo código de saída.
 
 ### Modos de composição
 
 **Modo automático (abertura).** As duas frases da rota — estado da Inbox e oferta — são obrigatórias e contam como a seção Inbox. Depois delas, abrir imediatamente o corpo pelo pódio: nada entra no meio. Não repetir total nem idades da Inbox. A cobrança leve, explícita ou insistente permanece na rota; juntar a ela a cobrança acionável de prazo vencido, quando houver.
 
-**Modo explícito (pedido).** Usar o seed fresco obtido pela skill `retrato`; o modo não reexecuta a abertura da rota nem sua oferta. Depois do pódio e antes da pauta, incluir a Inbox com total + idades. O restante do corpo é igual ao modo automático.
+**Modo explícito (pedido).** Usar o seed fresco obtido pela skill `briefing`; o modo não reexecuta a abertura da rota nem sua oferta. Depois do pódio e antes da pauta, incluir a Inbox com total + idades. O restante do corpo é igual ao modo automático.
 
 ### À vista
 
@@ -66,4 +66,4 @@ Esses efeitos mudam somente a apresentação. Recomendações como “a regra do
 
 ## Composição
 
-As seções são independentes e consultam suas próprias condições. A abertura normal da rota continua valendo para tudo que o retrato não absorveu nominalmente.
+As seções são independentes e consultam suas próprias condições. A abertura normal da rota continua valendo para tudo que o briefing não absorveu nominalmente.

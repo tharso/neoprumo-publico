@@ -27,7 +27,7 @@ def test_skill_repete_a_regra_do_dia_sem_fatos():
     # A regra mora na extensão, mas "acabei por hoje" casa a descrição desta
     # skill e dispara sem passar pela rota da sessão: sozinha na extensão, ela
     # nunca chega a ser aplicada (#57, célula (b) do smoke).
-    texto = ler("skills/diario/SKILL.md")
+    texto = ler("skills/fim/SKILL.md")
     assert "total == 0" in texto
     posicao = texto.index("total == 0")
     assert posicao < texto.index("Mostrar a proposta COMPLETA")
@@ -38,14 +38,14 @@ def test_skill_repete_a_regra_do_dia_sem_fatos():
 
 
 def test_skill_confirma_texto_inteiro_antes_de_gravar():
-    texto = ler("skills/diario/SKILL.md")
+    texto = ler("skills/fim/SKILL.md")
     assert texto.index("Mostrar a proposta COMPLETA") < texto.index("Após o “sim”")
     assert "diario gravar - --dia <dia>" in texto
     assert "compactação" in texto
 
 
 def test_skill_conduz_segundo_fecho_e_quatro_estados_de_recuperacao():
-    texto = ler("skills/diario/SKILL.md")
+    texto = ler("skills/fim/SKILL.md")
     assert "diario.existe" in texto and "melhor esforço" in texto
     for estado in ("dia_virou", "gravacao_em_andamento", "parcial", "indeterminado"):
         assert estado in texto

@@ -4,7 +4,7 @@ from pathlib import Path
 
 RAIZ = Path(__file__).parents[2]
 EXTENSAO = RAIZ / "skills/sessao/extensoes/primeira-sessao-do-dia.md"
-SKILL = RAIZ / "skills/retrato/SKILL.md"
+SKILL = RAIZ / "skills/briefing/SKILL.md"
 
 
 def test_rota_e_skill_da_sessao_seguem_byte_a_byte():
@@ -18,11 +18,11 @@ def test_rota_e_skill_da_sessao_seguem_byte_a_byte():
         assert hashlib.sha256((RAIZ / relativo).read_bytes()).hexdigest() == esperado
 
 
-def test_extensao_executa_retrato_e_declara_os_dois_modos():
+def test_extensao_executa_briefing_e_declara_os_dois_modos():
     texto = EXTENSAO.read_text(encoding="utf-8")
 
     for trecho in (
-        "## Retrato do dia",
+        "## Briefing",
         "neoprumo retrato --json",
         "`primeiro_do_dia` verdadeiro",
         "Modo automático",
@@ -45,13 +45,13 @@ def test_extensao_ordena_corpo_e_absorve_regimes_sem_perder_cobrancas():
 
     assert posicoes == sorted(posicoes)
     for trecho in (
-        'Se a seção "Retrato do dia" apresentou o panorama NESTA abertura',
+        'Se a seção "Briefing" apresentou o panorama NESTA abertura',
         "não repetir o pódio",
         "o anúncio de acordou",
         "nem re-apresentar os prazos",
         "cobrança acionável dos vencidos",
         "A condição 2",
-        "Sem retrato nesta abertura, as quatro condições valem integrais",
+        "Sem briefing nesta abertura, as quatro condições valem integrais",
     ):
         assert trecho in texto
 
@@ -84,7 +84,7 @@ def test_extensao_fecha_protocolo_de_email_e_degradacao():
 def test_skill_explicita_usa_estado_fresco_e_repetido_nao_bloqueia():
     texto = SKILL.read_text(encoding="utf-8")
 
-    assert "retrato" in texto.casefold()
+    assert "briefing" in texto.casefold()
     assert "panorama do dia" in texto.casefold()
     assert "neoprumo seed --json" in texto
     assert "neoprumo retrato --json" in texto
