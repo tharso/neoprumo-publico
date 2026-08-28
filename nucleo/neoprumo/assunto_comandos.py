@@ -7,6 +7,7 @@ from .assunto_base import (
     id_valido, nomes_da_prateleira, normalizar, texto_de_uma_linha,
 )
 from .assunto_ficha import formatar_nota, inserir_nota, ler_ficha
+from .assunto_contexto import ler_contexto
 from .assunto_repositorio import (
     criar_exclusivo, envelope, reconferir_e_gravar, resolver,
 )
@@ -120,9 +121,13 @@ def operar_mostrar(referencia, caminho=None):
         "id", "nome", "tipo", "estado", "apelidos", "caminho",
         "caminhos_relacionados", "notas",
     )}
+    problemas = list(ficha["problemas"])
+    if ficha["caminho"] is not None:
+        campos["contexto"], avisos = ler_contexto(ficha["caminho"])
+        problemas.extend(avisos)
     return 0, envelope(
         "assunto", f"Assunto: {ficha['nome']} ({ficha['id']}).", workspace,
-        ficha["problemas"], **campos,
+        problemas, **campos,
     )
 
 

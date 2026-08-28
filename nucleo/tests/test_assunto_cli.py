@@ -60,7 +60,9 @@ def test_registrar_valida_e_cria_ficha_canônica_relegivel(executar_cli, tmp_pat
     )
     assert mostrado["status"] == "assunto"
     assert mostrado["nome"] == "Árvore do quintal"
-    assert mostrado["problemas"] == []
+    assert mostrado["contexto"]["status"] == "inacessivel"
+    assert mostrado["contexto"]["frescor"] == "indeterminado"
+    assert any("inacessível" in problema for problema in mostrado["problemas"])
 
 
 def test_colisao_e_referencia_invalida_expoem_contrato(executar_cli, tmp_path):

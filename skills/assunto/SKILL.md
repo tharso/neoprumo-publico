@@ -9,7 +9,7 @@ Usar sempre o núcleo (`bin/neoprumo assunto`; no plugin, prefixar `${CLAUDE_PLU
 
 ## Nascimento
 
-Colher nome e, se informado, tipo, caminho, caminhos relacionados e apelidos. Primeiro obter a sugestão por uma tentativa de resolução ou proposta conversacional. Sempre mostrar o ID sugerido e esperar o dono confirmar o batismo; só então executar `assunto registrar <nome> [--id <id>]`. A escolha de criar não confirma o ID.
+Colher nome e, se informado, tipo, caminho, caminhos relacionados e apelidos. Primeiro obter a sugestão por uma tentativa de resolução ou proposta conversacional. Sempre mostrar o ID sugerido e esperar o dono confirmar o batismo; só então executar `assunto registrar <nome> [--id <id>]`. A escolha de criar não confirma o ID. Mesmo quando o pedido já trouxer nome e caminho completos, isso não confirma o ID: o batismo continua sendo pergunta e resposta.
 
 Se o envelope não trouxer `id_sugerido`, pedir um ID, mostrá-lo e confirmar. Executar `registrar --id`; o núcleo valida. Em recusa, apresentar o motivo e repetir o pedido. Em `id_em_uso`, mostrar ID, Nome quando houver e problemas, e decidir com o dono; nunca sobrescrever.
 
@@ -21,6 +21,10 @@ Se o envelope não trouxer `id_sugerido`, pedir um ID, mostrá-lo e confirmar. E
 - Reativar: `assunto reativar <ref>` após confirmar qual ficha foi resolvida.
 
 Referência ambígua: mostrar candidatas e repetir com ID. Inexistente: oferecer nascimento. Resolução incerta ou ficha quebrada: apresentar os problemas; não declarar unicidade nem contornar o núcleo. Anotação direta em arquivado é permitida por ser gesto consciente do dono: explicitar o estado antes de executar.
+
+### Contexto apontado
+
+Quando `mostrar` trouxer `contexto`, narrar `manchete` + frescor em linguagem comum. Para `defasado`: “a narrativa é de <updated>; a pasta mexeu depois — o retrato pode estar velho”. Para `indeterminado`, nomear a causa sem supor defasagem. Com `manchete_truncada`, ou pedido por mais história, apontar `arquivo` e folhear pela leitura do host. Narrar `sem_arquivo`, `inacessivel` e `ilegivel` sem drama; inacessibilidade não é defasagem e a ficha continua valendo.
 
 ## Migração assistida
 

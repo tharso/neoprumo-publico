@@ -1,7 +1,7 @@
 {
   "skills": {
     "acervo": 309,
-    "assunto": 401,
+    "assunto": 493,
     "briefing": 142,
     "captura": 196,
     "despacho": 520,
@@ -11,7 +11,7 @@
     "sessao": 437,
     "sessao/extensoes/fechar-o-dia": 105,
     "sessao/extensoes/pilha-grande": 99,
-    "sessao/extensoes/primeira-sessao-do-dia": 818,
+    "sessao/extensoes/primeira-sessao-do-dia": 851,
     "sessao/extensoes/ressurgimento": 459
   }
 }

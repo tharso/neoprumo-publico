@@ -93,3 +93,16 @@ def test_skill_explicita_usa_estado_fresco_e_repetido_nao_bloqueia():
     assert "total e idades" in texto.casefold()
     assert "`repetido` nunca bloqueia" in texto
     assert "primeira-sessao-do-dia.md" in texto
+
+
+def test_sinais_do_dia_oferecem_puxar_assunto_sem_varrer_fichas():
+    texto = EXTENSAO.read_text(encoding="utf-8").casefold()
+
+    for trecho in (
+        "evento de agenda ou email",
+        "nome ou apelido",
+        "oferecer puxar o assunto",
+        "não varrer as fichas",
+        "o sinal manda",
+    ):
+        assert trecho in texto

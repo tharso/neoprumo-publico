@@ -56,6 +56,8 @@ Montar `{"dominio": "email", "alvos": [{"id": "<único>", "remetente": "a@b", "a
 
 Esses efeitos mudam somente a apresentação. Recomendações como “a regra do contador recomenda só guardar” são relato, não ação executada.
 
+Quando um evento de agenda ou email apresentado casar com assunto conhecido por nome ou apelido, oferecer puxar o assunto: o `mostrar` já traz o contexto. Não varrer as fichas; o sinal manda.
+
 ### Degradação
 
 - Sem ferramenta de agenda, escrever `agenda: sem conexão neste host`.

@@ -1,6 +1,6 @@
 [project]
 name = "neoprumo"
-version = "0.4.0"
+version = "0.5.1"
 requires-python = ">=3.10"
 dependencies = []
 
@@ -17,6 +17,12 @@ addopts = [
 [tool.coverage.run]
 patch = ["subprocess"]
 source = ["neoprumo", "ferramentas"]
+
+[tool.coverage.paths]
+neoprumo = [
+  "nucleo/neoprumo",
+  "*/pacote-*/nucleo/neoprumo",
+]
 
 [tool.coverage.report]
 show_missing = true

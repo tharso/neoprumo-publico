@@ -39,12 +39,14 @@ def test_quatro_lugares_declaram_a_mesma_versao_semver_estrita():
     assert re.fullmatch(
         r"(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)", __version__
     )
+    assert __version__ == "0.5.1"
 
 
 def test_pacote_declara_data_da_versao_em_formato_iso():
     from datetime import date
 
     assert date.fromisoformat(__data_versao__).isoformat() == __data_versao__
+    assert __data_versao__ == "2026-08-28"
 
 
 def test_manifestos_declaram_identidade_publica_e_licenca():
