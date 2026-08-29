@@ -40,6 +40,14 @@ Apresentar abertos e concluídos, contagens por regime, `Acordou hoje:` e `Prazo
 
 Pelas ferramentas de calendário disponíveis na sessão do host, buscar os eventos do dia civil local. Mostrar hora e título em ordem de horário.
 
+### Reuniões
+
+Pelas ferramentas de reuniões/transcrições disponíveis no host, buscar as reuniões entre o dia de `anterior` e `hoje` do envelope do retrato, em dias civis locais. Se `anterior` for nulo, buscar ontem e hoje. Anunciar cada reunião com título + quando, de forma curta, e oferecer garimpar as tarefas. Não ler notas nem transcrições sem o sim do dono.
+
+Com o sim, ler as fontes e extrair somente compromissos de ação do dono. Apresentar uma lista numerada para ele filtrar; em cada candidato, mostrar a linha de origem proposta no formato `— da reunião "<nome>", <data>`. Quando o nome ou apelido casar com assunto conhecido, acrescentar o palpite visível `· projeto <nome>`, pelo mesmo casamento best-effort de agenda e email. Evento de hora marcada não vira item: fica na agenda.
+
+Nunca gravar sem o sim do dono. Capturar um item por tarefa. Para cada aprovada, fazer uma chamada e enviar o texto multilinha com a linha de origem ao fim pela entrada padrão de `bin/neoprumo captura -`; no plugin, usar `${CLAUDE_PLUGIN_ROOT}/bin/neoprumo captura -`. Se o dono recusar, não deixar rastro nem reoferecer nesta sessão.
+
 ### Email
 
 Pelas ferramentas de email disponíveis no host, buscar mensagens recentes ou não lidas. A seleção é julgamento declarado da skill; não inventar uma quantidade fixa. Para cada mensagem, extrair remetente puro no formato `a@b` de formas como `Nome <a@b>`, assunto e um identificador único que correlacione pergunta e resposta.
@@ -61,8 +69,9 @@ Quando um evento de agenda ou email apresentado casar com assunto conhecido por 
 ### Degradação
 
 - Sem ferramenta de agenda, escrever `agenda: sem conexão neste host`.
+- Sem ferramenta de reuniões, escrever `reuniões: sem conexão neste host`.
 - Sem ferramenta de email, escrever `email: sem conexão neste host`.
-- Sem ambas, apresentar À vista e Pauta e usar uma única linha de aviso agregado.
+- Sem as três, apresentar À vista e Pauta e usar uma única linha de aviso agregado.
 - Se um conector falhar ou atingir o timeout exposto pelo próprio host, manter tudo já obtido e trocar somente aquela parte pela linha de indisponibilidade. A skill não controla um conector que o host mantém travado.
 - Se `configuracao avaliar` for recusado ou estiver indisponível, apresentar o email com julgamento padrão e meia linha de aviso.
 

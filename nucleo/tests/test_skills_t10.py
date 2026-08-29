@@ -13,7 +13,8 @@ def test_arquivos_intocaveis_permanecem_byte_a_byte_inalterados():
         "skills/sessao/SKILL.md": "029ac34f443aebed262b4e332505736dce0e78205ac3ba342cd1fb27abb15260",
         "skills/sessao/extensoes/pilha-grande.md": "47bc5cacdd597f01f6af82f726fb376e70680fcc3aa7e7a9734950c06a541529",
         "skills/acervo/SKILL.md": "b96f37af9c0656e3a0fde832bdbb97fee4ce0946e041010f009cc974e0e0b996",
-        "skills/captura/SKILL.md": "c2d45ec8ade86645a00a80d1418b0750147569340913a5a90ed1ebb30ad4f55e",
+        # Última abertura: 28/08, tarefas de reunião a pedido (#77).
+        "skills/captura/SKILL.md": "0e63d806a1831e7feb8d09971bdd7251c462d06f664db4d07005a3d1d75374d5",
         "hooks/hooks.json": "d3a40b1747afd393f38f6db4714702cd16d0e9301beffdbd8adf69e4639a3ed3",
     }
     for relativo, esperado in esperados.items():
