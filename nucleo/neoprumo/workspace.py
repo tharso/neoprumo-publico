@@ -10,6 +10,7 @@ from .estrutura_workspace import (
     criar_marca,
     inspecionar_estrutura,
     problemas_da_estrutura,
+    recolher_arquivos_soltos,
     tem_marca_real,
 )
 from .orientacao import classificar, orientar, orientar_recuperacao
@@ -255,7 +256,11 @@ def diagnosticar(caminho, reparar=False, usar_json=False):
                 acao = criar_item_ausente(workspace, nome, tipo)
                 if acao:
                     acoes.append(acao)
-            restantes = problemas_da_estrutura(workspace)
+            recolhimentos, falhas = recolher_arquivos_soltos(workspace)
+            acoes.extend(recolhimentos)
+            restantes = inspecionar_estrutura(workspace)["problemas"]
+            restantes = [falhas.pop(problema, problema) for problema in restantes]
+            restantes.extend(falhas.values())
             if not restantes:
                 _emitir(
                     {
@@ -272,7 +277,7 @@ def diagnosticar(caminho, reparar=False, usar_json=False):
         resultado = {
             "status": "com_problemas",
             "problemas": problemas,
-            "acoes": [],
+            "acoes": acoes if reparar else [],
             "mensagem": "O workspace tem problemas:",
             "workspace": str(workspace),
         }

@@ -60,7 +60,9 @@ def origem(tmp_path):
     (raiz / "README.md").write_text("# leia\n", encoding="utf-8")
     (raiz / "LICENSE").write_text("MIT\n", encoding="utf-8")
     (raiz / ".github" / "workflows" / "ci.yml").write_text("name: ci\n", encoding="utf-8")
-    _git(raiz, "init", "-q")
+    # -b main: sem isto a branch inicial vem da configuração global de quem
+    # roda, e o runner do CI a cria como master — o checkout adiante falharia.
+    _git(raiz, "init", "-q", "-b", "main")
     _git(raiz, "add", "-A")
     _git(raiz, "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "base")
     return raiz

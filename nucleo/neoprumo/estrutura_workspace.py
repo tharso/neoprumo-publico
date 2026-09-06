@@ -12,6 +12,12 @@ ESTRUTURA = {
     ".neoprumo/workspace.json": "arquivo",
 }
 
+PERMITIDOS_NA_RAIZ = {
+    *(nome.split("/", 1)[0] for nome in ESTRUTURA),
+    "Configuracao.ini",
+    "Projetos.md",
+}
+
 
 class FalhaDeCriacao(OSError):
     def __init__(self, caminho, acao, erro):
@@ -54,6 +60,82 @@ def problemas_da_estrutura(workspace):
     return problemas
 
 
+def _entradas_sobrando(workspace):
+    try:
+        entradas = Path(workspace).iterdir()
+        return sorted(
+            (
+                entrada
+                for entrada in entradas
+                if entrada.name not in PERMITIDOS_NA_RAIZ
+                and not entrada.name.startswith(".")
+                and not entrada.is_symlink()
+            ),
+            key=lambda entrada: entrada.name,
+        )
+    except OSError:
+        return []
+
+
+def _aviso_de_arquivo_solto(nome):
+    return f"{nome} está solto na raiz (pode ir pra Inbox)."
+
+
+def _aviso_de_pasta_solta(nome):
+    return f"{nome}/ está solta na raiz."
+
+
+def sobras_da_raiz(workspace):
+    problemas = []
+    for entrada in _entradas_sobrando(workspace):
+        if entrada.is_dir():
+            problemas.append(_aviso_de_pasta_solta(entrada.name))
+        else:
+            problemas.append(_aviso_de_arquivo_solto(entrada.name))
+    return problemas
+
+
+def _destino_sem_colisao(inbox, nome):
+    destino = inbox / nome
+    if not _entrada_existe(destino):
+        return destino
+    caminho = Path(nome)
+    numero = 2
+    while True:
+        destino = inbox / f"{caminho.stem}-{numero}{caminho.suffix}"
+        if not _entrada_existe(destino):
+            return destino
+        numero += 1
+
+
+def _entrada_existe(caminho):
+    try:
+        caminho.lstat()
+    except FileNotFoundError:
+        return False
+    return True
+
+
+def recolher_arquivos_soltos(workspace):
+    workspace = Path(workspace)
+    inbox = workspace / "Inbox"
+    acoes = []
+    falhas = {}
+    for entrada in _entradas_sobrando(workspace):
+        if entrada.is_dir():
+            continue
+        try:
+            entrada.rename(_destino_sem_colisao(inbox, entrada.name))
+        except OSError as erro:
+            detalhe = f" ({erro})" if str(erro) else ""
+            falhas[_aviso_de_arquivo_solto(entrada.name)] = (
+                f"Não foi possível recolher {entrada.name} pra Inbox{detalhe}."
+            )
+            continue
+        acoes.append(f"{entrada.name} recolhido pra Inbox.")
+    return acoes, falhas
+
+
 def inspecionar_estrutura(caminho):
     workspace = Path(caminho)
     if not tem_marca_real(workspace):
@@ -61,7 +143,7 @@ def inspecionar_estrutura(caminho):
             "status": "nao_e_workspace",
             "problemas": ["Falta a pasta .neoprumo."],
         }
-    problemas = problemas_da_estrutura(workspace)
+    problemas = problemas_da_estrutura(workspace) + sobras_da_raiz(workspace)
     return {
         "status": "com_problemas" if problemas else "saudavel",
         "problemas": problemas,

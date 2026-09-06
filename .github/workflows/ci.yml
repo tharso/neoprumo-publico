@@ -32,6 +32,11 @@ jobs:
     steps:
       - name: Baixar o código
         uses: actions/checkout@v4
+        with:
+          # A conferência de versão compara este ponto com origin/main via
+          # merge-base, e merge-base precisa do caminho entre os dois. O clone
+          # raso padrão traz um commit só, e a conferência falhava em todo PR.
+          fetch-depth: 0
 
       - name: Preparar Python
         uses: actions/setup-python@v5
