@@ -8,7 +8,7 @@
       "name": "neoprumo",
       "source": "./",
       "description": "Sistema de organização pessoal que garante que nada se perde; NeoPrumo é o codinome de desenvolvimento.",
-      "version": "0.7.0",
+      "version": "0.7.1",
       "author": {
         "name": "Tharso Vieira"
       },

@@ -1,5 +1,3 @@
-import json
-import sys
 from pathlib import Path
 
 from .ativo import adotar_se_primeiro, resolver
@@ -14,25 +12,7 @@ from .estrutura_workspace import (
     tem_marca_real,
 )
 from .orientacao import classificar, orientar, orientar_recuperacao
-
-
-def _emitir(resultado, usar_json, erro=False):
-    if usar_json:
-        print(json.dumps(resultado, ensure_ascii=False))
-        return
-    destino = sys.stderr if erro else sys.stdout
-    print(resultado["mensagem"], file=destino)
-    status = resultado["status"]
-    if status in {"reparado", "readotado", "ja_existe"}:
-        itens = resultado["acoes"]
-    elif status == "com_problemas":
-        itens = resultado["acoes"] + resultado["problemas"]
-    elif status == "recusado":
-        itens = resultado["problemas"] + resultado["acoes"]
-    else:
-        itens = resultado["problemas"]
-    for item in itens:
-        print(f"- {item}", file=destino)
+from .saida_workspace import emitir as _emitir
 
 
 def _resultado(status, problemas, acoes, mensagem):
